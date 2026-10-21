@@ -83,8 +83,14 @@ Os nomes `ManfraTorrent.*` dos projetos/namespaces vêm de antes do nome final. 
 ## Próximos passos
 
 1. Primeira compilação e correções.
-2. Escolher arquivos antes de baixar (`SetFilePriorityAsync(file, Priority.DoNotDownload)`).
-3. Registrar o app como handler de `magnet:` (Windows: registro em `HKCU\Software\Classes\magnet`; Linux: `.desktop` com `MimeType=x-scheme-handler/magnet`) e aceitar o link via `args` em `Program.cs`.
-4. Ícone na bandeja / iniciar minimizado.
-5. Player embutido (LibVLCSharp) aproveitando o modo streaming.
-6. Amarrar o tráfego a uma interface (VPN).
+2. **Tela de Configurações** (separada de "Fontes"), com:
+   - velocidade máxima de upload e download (hoje fica em *Fontes e ajustes*; mover para cá);
+   - ação ao terminar os downloads: nada, fechar o app ou desligar o PC
+     (Windows: `shutdown /s /t 60`; Linux: `systemctl poweroff`; avisar com contagem regressiva e opção de cancelar);
+   - adicionar e editar trackers: lista global somada a todo torrent novo, mais edição por torrent
+     (`TorrentManager.TrackerManager.AddTrackerAsync` / `RemoveTrackerAsync`).
+3. Escolher arquivos antes de baixar (`SetFilePriorityAsync(file, Priority.DoNotDownload)`).
+4. Registrar o app como handler de `magnet:` (Windows: registro em `HKCU\Software\Classes\magnet`; Linux: `.desktop` com `MimeType=x-scheme-handler/magnet`) e aceitar o link via `args` em `Program.cs`.
+5. Ícone na bandeja / iniciar minimizado.
+6. Player embutido (LibVLCSharp) aproveitando o modo streaming.
+7. Amarrar o tráfego a uma interface (VPN).
