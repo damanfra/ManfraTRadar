@@ -88,7 +88,13 @@ Os nomes `ManfraTorrent.*` dos projetos/namespaces vêm de antes do nome final. 
    - ação ao terminar os downloads: nada, fechar o app ou desligar o PC
      (Windows: `shutdown /s /t 60`; Linux: `systemctl poweroff`; avisar com contagem regressiva e opção de cancelar);
    - adicionar e editar trackers: lista global somada a todo torrent novo, mais edição por torrent
-     (`TorrentManager.TrackerManager.AddTrackerAsync` / `RemoveTrackerAsync`).
+     (`TorrentManager.TrackerManager.AddTrackerAsync` / `RemoveTrackerAsync`);
+   - tema padrão: claro, escuro ou seguir o sistema (`Application.RequestedThemeVariant` = `Light`/`Dark`/`Default`).
+     Exige mover as cores de `App.axaml` para `ResourceDictionary.ThemeDictionaries`, com a paleta clara do protótipo;
+   - diretório de downloads padrão: definido ali e também atualizado sempre que o usuário escolher outra pasta
+     em qualquer lugar do app (guarda o último usado);
+   - bloquear conteúdo adulto (sim/não): descartar resultados das categorias Torznab 6000–6999 (XXX) e,
+     como reforço, filtrar por palavras-chave no título. Vale para Descobrir e para a busca.
 3. Escolher arquivos antes de baixar (`SetFilePriorityAsync(file, Priority.DoNotDownload)`).
 4. Registrar o app como handler de `magnet:` (Windows: registro em `HKCU\Software\Classes\magnet`; Linux: `.desktop` com `MimeType=x-scheme-handler/magnet`) e aceitar o link via `args` em `Program.cs`.
 5. Ícone na bandeja / iniciar minimizado.
