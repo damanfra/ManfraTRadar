@@ -94,9 +94,18 @@ Os nomes `ManfraTorrent.*` dos projetos/namespaces vêm de antes do nome final. 
    - diretório de downloads padrão: definido ali e também atualizado sempre que o usuário escolher outra pasta
      em qualquer lugar do app (guarda o último usado);
    - bloquear conteúdo adulto (sim/não): descartar resultados das categorias Torznab 6000–6999 (XXX) e,
-     como reforço, filtrar por palavras-chave no título. Vale para Descobrir e para a busca.
-3. Escolher arquivos antes de baixar (`SetFilePriorityAsync(file, Priority.DoNotDownload)`).
-4. Registrar o app como handler de `magnet:` (Windows: registro em `HKCU\Software\Classes\magnet`; Linux: `.desktop` com `MimeType=x-scheme-handler/magnet`) e aceitar o link via `args` em `Program.cs`.
-5. Ícone na bandeja / iniciar minimizado.
-6. Player embutido (LibVLCSharp) aproveitando o modo streaming.
-7. Amarrar o tráfego a uma interface (VPN).
+     como reforço, filtrar por palavras-chave no título. Vale para Descobrir e para a busca;
+   - intervalo de atualização do Descobrir: nunca / 15 / 30 / 60 min (padrão 30).
+3. **Atualização automática do Descobrir** (hoje só atualiza ao abrir o app, trocar categoria, buscar ou salvar fontes):
+   - timer conforme o intervalo configurado; pular enquanto a janela estiver minimizada e atualizar ao voltar,
+     se o intervalo já tiver passado;
+   - não atrapalhar quem está olhando: manter o item selecionado e a posição da lista. Durante uma busca,
+     mostrar o aviso "Há novidades — atualizar" em vez de trocar a lista sozinho;
+   - mostrar "atualizado há N min" ao lado do título, com botão de atualizar;
+   - guardar o último resultado em disco (pasta de dados) para a lista aparecer na hora ao abrir o app,
+     atualizando em segundo plano.
+4. Escolher arquivos antes de baixar (`SetFilePriorityAsync(file, Priority.DoNotDownload)`).
+5. Registrar o app como handler de `magnet:` (Windows: registro em `HKCU\Software\Classes\magnet`; Linux: `.desktop` com `MimeType=x-scheme-handler/magnet`) e aceitar o link via `args` em `Program.cs`.
+6. Ícone na bandeja / iniciar minimizado.
+7. Player embutido (LibVLCSharp) aproveitando o modo streaming.
+8. Amarrar o tráfego a uma interface (VPN).
