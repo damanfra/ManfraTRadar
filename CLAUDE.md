@@ -112,8 +112,20 @@ Os nomes `ManfraTorrent.*` dos projetos/namespaces vêm de antes do nome final. 
    - salvar ao lado do vídeo como `<nome do vídeo>.pt-BR.srt`, convertendo para UTF-8 (muitas legendas PT-BR vêm em Windows-1252);
    - configurações: ligar/desligar, idiomas em ordem de preferência (padrão `pt-BR`, depois `pt`), chaves dos provedores;
    - na tela de Downloads: indicador "legenda encontrada / não encontrada" e ação "buscar legenda de novo".
-5. Escolher arquivos antes de baixar (`SetFilePriorityAsync(file, Priority.DoNotDownload)`).
-6. Registrar o app como handler de `magnet:` (Windows: registro em `HKCU\Software\Classes\magnet`; Linux: `.desktop` com `MimeType=x-scheme-handler/magnet`) e aceitar o link via `args` em `Program.cs`.
-7. Ícone na bandeja / iniciar minimizado.
-8. Amarrar o tráfego a uma interface (VPN).
-9. (Por último, se fizer falta) Player embutido (LibVLCSharp) aproveitando o modo streaming.
+5. **Controle remoto pelo Android** (o Android só controla; quem baixa é sempre o desktop):
+   - **API no desktop:** servidor HTTP embutido no app (ASP.NET Core / Kestrel) com endpoints para buscar no Descobrir
+     (categoria + termo, usando as fontes do desktop, inclusive Jackett/Prowlarr), adicionar download (link + "em ordem"),
+     listar downloads com progresso e velocidades, e pausar, retomar ou remover. Liga/desliga e porta em Configurações;
+   - **Pareamento por QR code:** o desktop mostra endereço + chave de acesso; toda chamada exige a chave. Só rede local por
+     padrão; fora de casa, usar Tailscale (sem abrir porta no roteador);
+   - **App Android em Avalonia** (`ManfraTorrent.Android`, `net10.0-android`), só como controle remoto: abas Descobrir e
+     Downloads (polling de poucos segundos), leitor de QR para parear, e "Enviar para o PC" no menu de compartilhar do
+     Android (intent para links `magnet:` e `.torrent`). Sem motor de torrent no celular;
+   - **Refatoração:** extrair uma interface (ex.: `ITorrentBackend`) para os ViewModels funcionarem com o motor local
+     (desktop) ou com o desktop remoto (Android), reaproveitando ViewModels e estilos;
+   - visual mobile: seguir o protótipo em `docs/prototipo-android/`.
+6. Escolher arquivos antes de baixar (`SetFilePriorityAsync(file, Priority.DoNotDownload)`).
+7. Registrar o app como handler de `magnet:` (Windows: registro em `HKCU\Software\Classes\magnet`; Linux: `.desktop` com `MimeType=x-scheme-handler/magnet`) e aceitar o link via `args` em `Program.cs`.
+8. Ícone na bandeja / iniciar minimizado.
+9. Amarrar o tráfego a uma interface (VPN).
+10. (Por último, se fizer falta) Player embutido (LibVLCSharp) aproveitando o modo streaming.
