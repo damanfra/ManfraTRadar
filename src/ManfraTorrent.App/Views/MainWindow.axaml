@@ -1,0 +1,89 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ManfraTorrent.App.Views.MainWindow"
+        Title="ManfraTRadar"
+        Width="1280" Height="820"
+        MinWidth="980" MinHeight="620"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource BgBrush}"
+        Foreground="{StaticResource TextBrush}">
+
+  <Grid ColumnDefinitions="232,*">
+
+    <!-- Barra lateral -->
+    <Border Grid.Column="0"
+            Background="{StaticResource SidebarBrush}"
+            BorderBrush="{StaticResource LineBrush}"
+            BorderThickness="0,0,1,0">
+      <DockPanel Margin="14,20,14,16">
+
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="10" Margin="8,0,0,28">
+          <Canvas Width="28" Height="28">
+            <Ellipse Canvas.Left="2" Canvas.Top="3" Width="12" Height="12" Fill="{StaticResource AccentBrush}" />
+            <Ellipse Canvas.Left="13" Canvas.Top="3" Width="12" Height="12" Fill="{StaticResource AccentBrush}" Opacity="0.7" />
+            <Ellipse Canvas.Left="7.5" Canvas.Top="13" Width="12" Height="12" Fill="{StaticResource AccentBrush}" Opacity="0.45" />
+          </Canvas>
+          <TextBlock Text="ManfraTRadar" FontSize="18" FontWeight="Bold" VerticalAlignment="Center" />
+        </StackPanel>
+
+        <!-- Rodapé: velocidade total e estado do motor -->
+        <Border DockPanel.Dock="Bottom" Classes="card" Padding="14" CornerRadius="12">
+          <StackPanel Spacing="6">
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBlock Text="Download" Classes="muted" />
+              <TextBlock Grid.Column="1" Classes="mono" FontSize="13"
+                         Foreground="{StaticResource AccentBrush}"
+                         Text="{Binding Downloads.TotalDownText, StringFormat='↓ {0}'}" />
+            </Grid>
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBlock Text="Upload" Classes="muted" />
+              <TextBlock Grid.Column="1" Classes="mono" FontSize="13"
+                         Foreground="{StaticResource LeechBrush}"
+                         Text="{Binding Downloads.TotalUpText, StringFormat='↑ {0}'}" />
+            </Grid>
+            <TextBlock Text="{Binding EngineStatus}" Classes="muted" FontSize="11" TextWrapping="Wrap" Margin="0,4,0,0" />
+          </StackPanel>
+        </Border>
+
+        <StackPanel Spacing="4">
+          <Button Classes="nav" Classes.active="{Binding IsDiscover}"
+                  Command="{Binding NavigateCommand}" CommandParameter="discover">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+              <Path Classes="icon" Stroke="{Binding $parent[Button].Foreground}"
+                    Data="M12,3 A9,9 0 1 1 11.99,3 Z M15.5,8.5 L13.5,13.5 L8.5,15.5 L10.5,10.5 Z" />
+              <TextBlock Text="Descobrir" VerticalAlignment="Center" />
+            </StackPanel>
+          </Button>
+
+          <Button Classes="nav" Classes.active="{Binding IsDownloads}"
+                  Command="{Binding NavigateCommand}" CommandParameter="downloads">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+              <Path Classes="icon" Stroke="{Binding $parent[Button].Foreground}"
+                    Data="M12,3 L12,13 M8,9 L12,13 L16,9 M4,16 L4,19 A2,2 0 0 0 6,21 L18,21 A2,2 0 0 0 20,19 L20,16" />
+              <TextBlock Grid.Column="1" Text="Downloads" VerticalAlignment="Center" Margin="12,0,0,0" />
+              <Border Grid.Column="2" IsVisible="{Binding Downloads.HasActive}"
+                      Background="{StaticResource AccentBrush}" CornerRadius="9"
+                      MinWidth="20" Height="18" Padding="6,0" Margin="12,0,0,0">
+                <TextBlock Text="{Binding Downloads.ActiveCount}" FontSize="11" FontWeight="Bold"
+                           Foreground="{StaticResource OnAccentBrush}"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+              </Border>
+            </Grid>
+          </Button>
+
+          <Button Classes="nav" Classes.active="{Binding IsSources}"
+                  Command="{Binding NavigateCommand}" CommandParameter="sources">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+              <Path Classes="icon" Stroke="{Binding $parent[Button].Foreground}"
+                    Data="M5,6 A7,3 0 1 0 19,6 A7,3 0 1 0 5,6 M5,6 L5,18 A7,3 0 0 0 19,18 L19,6 M5,12 A7,3 0 0 0 19,12" />
+              <TextBlock Text="Fontes e ajustes" VerticalAlignment="Center" />
+            </StackPanel>
+          </Button>
+        </StackPanel>
+      </DockPanel>
+    </Border>
+
+    <!-- Página atual -->
+    <ContentControl Grid.Column="1" Content="{Binding CurrentPage}" />
+  </Grid>
+</Window>

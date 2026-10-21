@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Enxame — Downloads</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0E1116}
+a{color:#6EA8FF}a:hover{color:#9CC3FF}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #0E1116; color: #E6E9EE; font-family: 'IBM Plex Sans', system-ui, sans-serif; display: flex; flex-direction: column; overflow: hidden">
+
+<header style="flex: 0 0 auto; padding: 16px 16px 8px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; align-items: center; justify-content: space-between">
+<h1 style="margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.01em">Downloads</h1>
+<button type="button" style="height: 44px; display: flex; align-items: center; gap: 8px; padding: 0 14px; border-radius: 12px; background: #18233A; border: 1px solid #2B3E63; color: #6EA8FF; font: 600 14px 'IBM Plex Sans', sans-serif; cursor: pointer">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+Magnet
+</button>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+<div style="padding: 12px 14px; border-radius: 12px; background: #171B22; border: 1px solid #272D37; display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 12px; color: #9AA3AF">Baixando</span>
+<span style="font: 500 20px 'IBM Plex Mono', monospace; color: #6EA8FF">↓ {{downTotal}}</span>
+</div>
+<div style="padding: 12px 14px; border-radius: 12px; background: #171B22; border: 1px solid #272D37; display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 12px; color: #9AA3AF">Enviando</span>
+<span style="font: 500 20px 'IBM Plex Mono', monospace; color: #FFA15C">↑ 1,8 MB/s</span>
+</div>
+</div>
+<div style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #9AA3AF">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path></svg>
+Download/Enxame · 41 GB livres
+</div>
+
+<div role="group" aria-label="Filtrar downloads" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 4px; border-radius: 12px; background: #171B22; border: 1px solid #272D37">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="3">
+<button type="button" aria-pressed="{{t.pressed}}" onClick="{{t.pick}}" style="{{t.style}}">{{t.label}}</button>
+</sc-for>
+</div>
+</header>
+
+<div style="flex: 1 1 auto; min-height: 0; overflow-y: auto; border-top: 1px solid #1C2129">
+<sc-for list="{{items}}" as="d" hint-placeholder-count="4">
+<div style="padding: 14px 16px; border-bottom: 1px solid #1C2129; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: center; gap: 12px">
+<a href="Detalhes.dc.html" style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 3px; text-decoration: none; color: #E6E9EE">
+<span style="font-size: 15px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{d.title}}</span>
+<span style="font-size: 12px; color: #9AA3AF">{{d.status}}</span>
+</a>
+<button type="button" aria-label="{{d.actionLabel}}" onClick="{{d.act}}" style="flex: 0 0 auto; width: 44px; height: 44px; border-radius: 50%; background: #171B22; border: 1px solid #2A303A; color: #C9CED6; display: flex; align-items: center; justify-content: center; cursor: pointer">
+<sc-if value="{{d.isRunning}}" hint-placeholder-val="{{ true }}">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M9 5v14M15 5v14"></path></svg>
+</sc-if>
+<sc-if value="{{d.isPaused}}" hint-placeholder-val="{{ false }}">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M8 5l11 7-11 7z"></path></svg>
+</sc-if>
+<sc-if value="{{d.isDone}}" hint-placeholder-val="{{ false }}">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path></svg>
+</sc-if>
+</button>
+</div>
+<div style="height: 6px; border-radius: 3px; background: #232933; overflow: hidden"><div style="{{d.barStyle}}"></div></div>
+<div style="display: flex; justify-content: space-between; gap: 8px; font: 400 12px 'IBM Plex Mono', monospace; color: #9AA3AF">
+<span>{{d.left}}</span>
+<span style="{{d.rightStyle}}">{{d.right}}</span>
+</div>
+</div>
+</sc-for>
+<sc-if value="{{empty}}" hint-placeholder-val="{{ false }}">
+<p style="margin: 0; padding: 40px 24px; text-align: center; font-size: 14px; color: #9AA3AF">Nenhum download aqui.</p>
+</sc-if>
+</div>
+
+<nav aria-label="Navegação principal" style="flex: 0 0 auto; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); height: 64px; border-top: 1px solid #222831; background: #12151B">
+<a href="Main.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-decoration: none; color: #9AA3AF; font-size: 11px; font-weight: 500">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M15.5 8.5l-2 5-5 2 2-5z"></path></svg>
+Descobrir
+</a>
+<a href="Downloads.dc.html" aria-current="page" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-decoration: none; color: #6EA8FF; font-size: 11px; font-weight: 600">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v10M8 9l4 4 4-4"></path><rect x="4" y="15" width="16" height="6" rx="2"></rect></svg>
+Downloads
+</a>
+<button type="button" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; background: none; border: 0; color: #9AA3AF; font: 500 11px 'IBM Plex Sans', sans-serif; cursor: pointer">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><ellipse cx="12" cy="6" rx="7" ry="3"></ellipse><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"></path></svg>
+Fontes
+</button>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  state = { tab: 'Todos', paused: { flash: true } };
+  renderVals() {
+    const all = [
+      { id: 'notld', title: 'Night of the Living Dead (1968) Remaster 1080p', pct: 64, got: '2,2', total: '3,4 GB', down: 8.1, eta: '2 min', peers: 48 },
+      { id: 'ubuntu', title: 'Ubuntu 24.04.3 Desktop amd64', pct: 31, got: '1,9', total: '6,1 GB', down: 4.3, eta: '16 min', peers: 112 },
+      { id: 'flash', title: 'Flash Gordon (1954) — temporada completa', pct: 12, got: '1,1', total: '9,2 GB', down: 2.6, eta: '52 min', peers: 23 },
+      { id: 'blender', title: 'Blender 4.5 LTS — Linux x64', pct: 100, total: '340 MB', ratio: '0,82', up: '1,2 MB/s' },
+      { id: 'bbb', title: 'Big Buck Bunny 4K 60fps', pct: 100, total: '642 MB', ratio: '1,40', up: '0,6 MB/s' },
+      { id: 'debian', title: 'Debian 13.1 netinst', pct: 100, total: '754 MB', ratio: '2,03', up: 'parado' }
+    ];
+    const paused = this.state.paused;
+    const tab = this.state.tab;
+    const n = (x) => x.toFixed(1).replace('.', ',');
+    const isDone = (i) => i.pct >= 100;
+    const visible = all.filter((i) => tab === 'Todos' || (tab === 'Ativos' ? !isDone(i) : isDone(i)));
+    const downTotal = all.filter((i) => !isDone(i) && !paused[i.id]).reduce((s, i) => s + i.down, 0);
+    const tabBase = "height: 40px; border-radius: 9px; border: 0; cursor: pointer; font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; ";
+    return {
+      downTotal: n(downTotal) + ' MB/s',
+      tabs: ['Todos', 'Ativos', 'Concluídos'].map((t) => ({
+        label: t,
+        pressed: t === tab ? 'true' : 'false',
+        pick: () => this.setState({ tab: t }),
+        style: tabBase + (t === tab ? 'font-weight: 600; background: #2A3242; color: #E6E9EE' : 'font-weight: 500; background: none; color: #9AA3AF')
+      })),
+      items: visible.map((i) => {
+        const done = isDone(i);
+        const p = !done && !!paused[i.id];
+        const running = !done && !p;
+        const color = done ? '#5EE0A0' : p ? '#5B6472' : '#6EA8FF';
+        return {
+          title: i.title,
+          isDone: done,
+          isPaused: p,
+          isRunning: running,
+          status: done ? 'Concluído · semeando' : p ? 'Pausado' : i.peers + ' pares conectados',
+          actionLabel: done ? 'Abrir pasta de ' + i.title : p ? 'Retomar ' + i.title : 'Pausar ' + i.title,
+          act: () => {
+            if (done) return;
+            const next = Object.assign({}, paused);
+            next[i.id] = !paused[i.id];
+            this.setState({ paused: next });
+          },
+          barStyle: 'height: 100%; border-radius: 3px; width: ' + i.pct + '%; background: ' + color,
+          left: done ? i.total + ' · razão ' + i.ratio : i.got + ' de ' + i.total + ' · ' + i.pct + '%',
+          right: done ? '↑ ' + i.up : p ? 'em pausa' : '↓ ' + n(i.down) + ' MB/s · ' + i.eta,
+          rightStyle: done ? 'color: #FFA15C' : p ? 'color: #9AA3AF' : 'color: #6EA8FF'
+        };
+      }),
+      empty: visible.length === 0
+    };
+  }
+}
+</script>
+</body>
+</html>

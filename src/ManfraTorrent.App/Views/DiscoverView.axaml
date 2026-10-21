@@ -1,0 +1,190 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="ManfraTorrent.App.Views.DiscoverView">
+
+  <Grid RowDefinitions="Auto,Auto,Auto,*" Margin="28,24,28,0">
+
+    <!-- Busca -->
+    <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto" Margin="0,0,0,16">
+      <TextBox Text="{Binding SearchText}"
+               Watermark="Buscar em todas as fontes (Enter)"
+               FontSize="15" MinHeight="44">
+        <TextBox.KeyBindings>
+          <KeyBinding Gesture="Enter" Command="{Binding SearchCommand}" />
+          <KeyBinding Gesture="Escape" Command="{Binding ClearSearchCommand}" />
+        </TextBox.KeyBindings>
+        <TextBox.InnerLeftContent>
+          <Path Classes="icon" Stroke="{StaticResource MutedBrush}" Margin="12,0,4,0"
+                Data="M11,4 A7,7 0 1 1 10.99,4 Z M20,20 L16.5,16.5" />
+        </TextBox.InnerLeftContent>
+      </TextBox>
+      <Button Grid.Column="1" Classes="primary" Margin="10,0,0,0" MinHeight="44"
+              Command="{Binding SearchCommand}" Content="Buscar" />
+      <Button Grid.Column="2" Classes="ghost" Margin="8,0,0,0" MinHeight="44"
+              Command="{Binding ClearSearchCommand}" Content="Em alta"
+              ToolTip.Tip="Limpar a busca e voltar para o que está em alta" />
+    </Grid>
+
+    <!-- Categorias + ordenação -->
+    <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="0,0,0,14">
+      <ListBox Classes="chips"
+               ItemsSource="{Binding Categories}"
+               SelectedItem="{Binding SelectedCategory}"
+               SelectionMode="Single,AlwaysSelected">
+        <ListBox.ItemsPanel>
+          <ItemsPanelTemplate>
+            <StackPanel Orientation="Horizontal" />
+          </ItemsPanelTemplate>
+        </ListBox.ItemsPanel>
+      </ListBox>
+      <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+        <TextBlock Text="Ordenar" Classes="muted" VerticalAlignment="Center" />
+        <ComboBox ItemsSource="{Binding SortModes}" SelectedItem="{Binding SortMode}" MinWidth="160" />
+      </StackPanel>
+    </Grid>
+
+    <!-- Cabeçalho da lista -->
+    <Grid Grid.Row="2" ColumnDefinitions="Auto,*" Margin="0,0,0,8">
+      <TextBlock Classes="h2" Text="{Binding HeaderText}" VerticalAlignment="Center" />
+      <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" Margin="14,0,0,0" VerticalAlignment="Center">
+        <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsBusy}" Width="80" Classes="bar" />
+        <TextBlock Text="{Binding StatusText}" Classes="muted" TextTrimming="CharacterEllipsis" />
+      </StackPanel>
+    </Grid>
+
+    <!-- Lista + painel de detalhes -->
+    <Grid Grid.Row="3" ColumnDefinitions="*,Auto">
+
+      <Border BorderBrush="{StaticResource RowLineBrush}" BorderThickness="0,1,0,0">
+        <Panel>
+          <ListBox Classes="rows"
+                   ItemsSource="{Binding Results}"
+                   SelectedItem="{Binding Selected}">
+            <ListBox.ItemTemplate>
+              <DataTemplate>
+                <Grid ColumnDefinitions="34,*,Auto,Auto">
+                  <TextBlock Text="{Binding RankText}" Classes="mono muted" FontSize="13"
+                             VerticalAlignment="Center" />
+
+                  <StackPanel Grid.Column="1" Spacing="3" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Title}" FontSize="15" FontWeight="Medium"
+                               TextTrimming="CharacterEllipsis" />
+                    <TextBlock Text="{Binding Meta}" Classes="muted" TextTrimming="CharacterEllipsis" />
+                  </StackPanel>
+
+                  <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="16"
+                              Margin="16,0" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding SeedsText}" Classes="mono" FontSize="13"
+                               Foreground="{StaticResource SeedBrush}" IsVisible="{Binding HasSwarm}" />
+                    <TextBlock Text="{Binding LeechText}" Classes="mono" FontSize="13"
+                               Foreground="{StaticResource LeechBrush}" IsVisible="{Binding HasSwarm}" />
+                    <TextBlock Text="{Binding PopularityText}" Classes="mono muted" FontSize="13"
+                               IsVisible="{Binding !HasSwarm}" />
+                    <TextBlock Text="{Binding AgeText}" Classes="muted" MinWidth="64" TextAlignment="Right" />
+                  </StackPanel>
+
+                  <Button Grid.Column="3" Classes="round"
+                          ToolTip.Tip="Baixar"
+                          IsEnabled="{Binding CanDownload}"
+                          Command="{Binding $parent[UserControl].DataContext.DownloadCommand}"
+                          CommandParameter="{Binding}">
+                    <Path Classes="icon" Stroke="{StaticResource AccentBrush}"
+                          Data="M12,4 L12,15 M7,10 L12,15 L17,10 M5,20 L19,20" />
+                  </Button>
+                </Grid>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+
+          <TextBlock IsVisible="{Binding IsEmpty}"
+                     Text="Nada por aqui. Tente outra categoria ou ative mais fontes."
+                     Classes="muted" FontSize="14"
+                     HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,48,0,0" />
+        </Panel>
+      </Border>
+
+      <!-- Detalhes do item selecionado -->
+      <ScrollViewer Grid.Column="1" IsVisible="{Binding HasSelection}" Width="380" Margin="20,0,0,20">
+        <Border Classes="card" DataContext="{Binding Selected}" VerticalAlignment="Top">
+          <StackPanel Spacing="16">
+
+            <Grid ColumnDefinitions="*,Auto">
+              <Border Background="{StaticResource AccentDimBrush}" CornerRadius="999" Padding="10,4"
+                      HorizontalAlignment="Left">
+                <TextBlock Text="{Binding CategoryLabel}" FontSize="12" FontWeight="SemiBold" Foreground="#9CC3FF" />
+              </Border>
+              <Button Grid.Column="1" Classes="link" Content="Fechar"
+                      Command="{Binding $parent[UserControl].DataContext.CloseDetailsCommand}" />
+            </Grid>
+
+            <StackPanel Spacing="6">
+              <TextBlock Text="{Binding Title}" FontSize="20" FontWeight="Bold" TextWrapping="Wrap" />
+              <TextBlock Text="{Binding SourceLine}" Classes="muted" FontSize="13" TextWrapping="Wrap" />
+            </StackPanel>
+
+            <Border Background="{StaticResource Surface2Brush}" CornerRadius="12" Padding="14">
+              <StackPanel Spacing="10">
+                <Grid ColumnDefinitions="*,*,*">
+                  <StackPanel Spacing="2">
+                    <TextBlock Text="{Binding StatALabel}" Classes="muted" />
+                    <TextBlock Text="{Binding StatAValue}" Classes="mono" FontSize="18"
+                               Foreground="{StaticResource SeedBrush}" />
+                  </StackPanel>
+                  <StackPanel Grid.Column="1" Spacing="2">
+                    <TextBlock Text="{Binding StatBLabel}" Classes="muted" />
+                    <TextBlock Text="{Binding StatBValue}" Classes="mono" FontSize="18"
+                               Foreground="{StaticResource LeechBrush}" TextTrimming="CharacterEllipsis" />
+                  </StackPanel>
+                  <StackPanel Grid.Column="2" Spacing="2">
+                    <TextBlock Text="Tamanho" Classes="muted" />
+                    <TextBlock Text="{Binding SizeText}" Classes="mono" FontSize="18" />
+                  </StackPanel>
+                </Grid>
+                <ProgressBar Classes="bar done" Minimum="0" Maximum="100" Value="{Binding HealthPercent}" />
+                <TextBlock Text="{Binding HealthText}" Classes="muted" TextWrapping="Wrap" />
+              </StackPanel>
+            </Border>
+
+            <StackPanel Spacing="2" IsVisible="{Binding HasInfoHash}">
+              <TextBlock Text="Infohash" Classes="label" />
+              <SelectableTextBlock Text="{Binding InfoHash}" FontFamily="{StaticResource MonoFont}"
+                                   FontSize="12" TextWrapping="Wrap" Foreground="#C9CED6" />
+            </StackPanel>
+
+            <StackPanel Spacing="8">
+              <Button Classes="primary" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                      IsEnabled="{Binding CanDownload}"
+                      Command="{Binding $parent[UserControl].DataContext.DownloadCommand}"
+                      CommandParameter="{Binding}">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <Path Classes="icon" Stroke="{StaticResource OnAccentBrush}"
+                        Data="M12,4 L12,15 M7,10 L12,15 L17,10 M5,20 L19,20" />
+                  <TextBlock Text="Baixar" VerticalAlignment="Center" />
+                </StackPanel>
+              </Button>
+              <Button Classes="ghost" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                      IsEnabled="{Binding CanDownload}"
+                      ToolTip.Tip="Baixa as partes em ordem, para começar a assistir antes de terminar"
+                      Command="{Binding $parent[UserControl].DataContext.DownloadSequentialCommand}"
+                      CommandParameter="{Binding}"
+                      Content="Baixar em ordem (assistir enquanto baixa)" />
+              <Grid ColumnDefinitions="*,8,*">
+                <Button Classes="ghost" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                        Command="{Binding $parent[UserControl].DataContext.CopyLinkCommand}"
+                        CommandParameter="{Binding}" Content="Copiar link" />
+                <Button Grid.Column="2" Classes="ghost" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                        IsEnabled="{Binding HasDetailsUrl}"
+                        Command="{Binding $parent[UserControl].DataContext.OpenPageCommand}"
+                        CommandParameter="{Binding}" Content="Abrir página" />
+              </Grid>
+              <TextBlock Text="Adicionado aos downloads ✓" Foreground="{StaticResource SeedBrush}"
+                         FontSize="12" HorizontalAlignment="Center" IsVisible="{Binding Added}" />
+              <TextBlock Text="Adicionando…" Classes="muted" HorizontalAlignment="Center"
+                         IsVisible="{Binding IsAdding}" />
+            </StackPanel>
+          </StackPanel>
+        </Border>
+      </ScrollViewer>
+    </Grid>
+  </Grid>
+</UserControl>

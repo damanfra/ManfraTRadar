@@ -1,0 +1,211 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ManfraTorrent.App.ViewModels"
+             xmlns:views="using:ManfraTorrent.App.Views"
+             x:Class="ManfraTorrent.App.App"
+             RequestedThemeVariant="Dark">
+
+  <Application.DataTemplates>
+    <DataTemplate DataType="{x:Type vm:DiscoverViewModel}">
+      <views:DiscoverView />
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type vm:DownloadsViewModel}">
+      <views:DownloadsView />
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type vm:SourcesViewModel}">
+      <views:SourcesView />
+    </DataTemplate>
+  </Application.DataTemplates>
+
+  <Application.Resources>
+    <Color x:Key="SystemAccentColor">#6EA8FF</Color>
+    <Color x:Key="SystemAccentColorLight1">#8DBBFF</Color>
+    <Color x:Key="SystemAccentColorDark1">#4F8EEB</Color>
+
+    <SolidColorBrush x:Key="BgBrush" Color="#0E1116" />
+    <SolidColorBrush x:Key="SidebarBrush" Color="#12151B" />
+    <SolidColorBrush x:Key="SurfaceBrush" Color="#171B22" />
+    <SolidColorBrush x:Key="Surface2Brush" Color="#1E232C" />
+    <SolidColorBrush x:Key="LineBrush" Color="#272D37" />
+    <SolidColorBrush x:Key="RowLineBrush" Color="#1C2129" />
+    <SolidColorBrush x:Key="TextBrush" Color="#E6E9EE" />
+    <SolidColorBrush x:Key="MutedBrush" Color="#9AA3AF" />
+    <SolidColorBrush x:Key="AccentBrush" Color="#6EA8FF" />
+    <SolidColorBrush x:Key="AccentDimBrush" Color="#18233A" />
+    <SolidColorBrush x:Key="AccentLineBrush" Color="#2B3E63" />
+    <SolidColorBrush x:Key="SeedBrush" Color="#5EE0A0" />
+    <SolidColorBrush x:Key="LeechBrush" Color="#FFA15C" />
+    <SolidColorBrush x:Key="DangerBrush" Color="#FF7B7B" />
+    <SolidColorBrush x:Key="OnAccentBrush" Color="#0B0E13" />
+    <FontFamily x:Key="MonoFont">Cascadia Mono, Consolas, DejaVu Sans Mono, Liberation Mono, monospace</FontFamily>
+  </Application.Resources>
+
+  <Application.Styles>
+    <FluentTheme />
+
+    <!-- Texto -->
+    <Style Selector="TextBlock.h1">
+      <Setter Property="FontSize" Value="24" />
+      <Setter Property="FontWeight" Value="Bold" />
+    </Style>
+    <Style Selector="TextBlock.h2">
+      <Setter Property="FontSize" Value="17" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="TextBlock.muted">
+      <Setter Property="Foreground" Value="{StaticResource MutedBrush}" />
+      <Setter Property="FontSize" Value="12" />
+    </Style>
+    <Style Selector="TextBlock.mono">
+      <Setter Property="FontFamily" Value="{StaticResource MonoFont}" />
+    </Style>
+    <Style Selector="TextBlock.label">
+      <Setter Property="Foreground" Value="{StaticResource MutedBrush}" />
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="Margin" Value="0,0,0,4" />
+    </Style>
+
+    <!-- Cartões -->
+    <Style Selector="Border.card">
+      <Setter Property="Background" Value="{StaticResource SurfaceBrush}" />
+      <Setter Property="BorderBrush" Value="{StaticResource LineBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="14" />
+      <Setter Property="Padding" Value="18" />
+    </Style>
+
+    <!-- Ícones desenhados com Path -->
+    <Style Selector="Path.icon">
+      <Setter Property="Width" Value="18" />
+      <Setter Property="Height" Value="18" />
+      <Setter Property="Stretch" Value="Uniform" />
+      <Setter Property="StrokeThickness" Value="2" />
+      <Setter Property="StrokeLineCap" Value="Round" />
+      <Setter Property="StrokeJoin" Value="Round" />
+    </Style>
+
+    <!-- Navegação lateral -->
+    <Style Selector="Button.nav">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Foreground" Value="{StaticResource MutedBrush}" />
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="HorizontalContentAlignment" Value="Left" />
+      <Setter Property="Padding" Value="12,11" />
+      <Setter Property="CornerRadius" Value="10" />
+      <Setter Property="FontSize" Value="14" />
+    </Style>
+    <Style Selector="Button.nav.active">
+      <Setter Property="Background" Value="{StaticResource Surface2Brush}" />
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="Button.nav:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#1A1F27" />
+      <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+    </Style>
+
+    <!-- Botões -->
+    <Style Selector="Button.primary">
+      <Setter Property="Background" Value="{StaticResource AccentBrush}" />
+      <Setter Property="Foreground" Value="{StaticResource OnAccentBrush}" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Padding" Value="16,10" />
+      <Setter Property="CornerRadius" Value="10" />
+    </Style>
+    <Style Selector="Button.primary:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#8DBBFF" />
+      <Setter Property="Foreground" Value="{StaticResource OnAccentBrush}" />
+    </Style>
+    <Style Selector="Button.primary:pressed /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#5C97EE" />
+      <Setter Property="Foreground" Value="{StaticResource OnAccentBrush}" />
+    </Style>
+    <Style Selector="Button.ghost">
+      <Setter Property="Background" Value="{StaticResource SurfaceBrush}" />
+      <Setter Property="BorderBrush" Value="{StaticResource LineBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Padding" Value="14,10" />
+      <Setter Property="CornerRadius" Value="10" />
+    </Style>
+    <Style Selector="Button.round">
+      <Setter Property="Width" Value="40" />
+      <Setter Property="Height" Value="40" />
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="CornerRadius" Value="20" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+      <Setter Property="Background" Value="{StaticResource AccentDimBrush}" />
+      <Setter Property="BorderBrush" Value="{StaticResource AccentLineBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}" />
+    </Style>
+    <Style Selector="Button.round.neutral">
+      <Setter Property="Background" Value="{StaticResource SurfaceBrush}" />
+      <Setter Property="BorderBrush" Value="{StaticResource LineBrush}" />
+      <Setter Property="Foreground" Value="#C9CED6" />
+    </Style>
+    <Style Selector="Button.link">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}" />
+      <Setter Property="Padding" Value="6,4" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+
+    <!-- Campos -->
+    <Style Selector="TextBox">
+      <Setter Property="CornerRadius" Value="10" />
+      <Setter Property="MinHeight" Value="40" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+
+    <!-- Chips (ListBox horizontal) -->
+    <Style Selector="ListBox.chips">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Padding" Value="0" />
+    </Style>
+    <Style Selector="ListBox.chips ListBoxItem">
+      <Setter Property="Padding" Value="14,7" />
+      <Setter Property="Margin" Value="0,0,8,0" />
+      <Setter Property="CornerRadius" Value="999" />
+      <Setter Property="Background" Value="{StaticResource SurfaceBrush}" />
+      <Setter Property="BorderBrush" Value="{StaticResource LineBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Foreground" Value="#C9CED6" />
+      <Setter Property="FontSize" Value="13" />
+    </Style>
+    <Style Selector="ListBox.chips ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="{StaticResource AccentBrush}" />
+      <Setter Property="Foreground" Value="{StaticResource OnAccentBrush}" />
+      <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}" />
+    </Style>
+    <Style Selector="ListBox.chips ListBoxItem:selected:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#8DBBFF" />
+      <Setter Property="Foreground" Value="{StaticResource OnAccentBrush}" />
+    </Style>
+
+    <!-- Listas de resultados / downloads -->
+    <Style Selector="ListBox.rows">
+      <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <Style Selector="ListBox.rows ListBoxItem">
+      <Setter Property="Padding" Value="12,10" />
+      <Setter Property="CornerRadius" Value="10" />
+      <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+    </Style>
+
+    <!-- Barras de progresso -->
+    <Style Selector="ProgressBar.bar">
+      <Setter Property="Height" Value="6" />
+      <Setter Property="MinHeight" Value="6" />
+      <Setter Property="CornerRadius" Value="3" />
+      <Setter Property="Background" Value="#232933" />
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}" />
+    </Style>
+    <Style Selector="ProgressBar.bar.done">
+      <Setter Property="Foreground" Value="{StaticResource SeedBrush}" />
+    </Style>
+    <Style Selector="ProgressBar.bar.paused">
+      <Setter Property="Foreground" Value="#5B6472" />
+    </Style>
+  </Application.Styles>
+</Application>

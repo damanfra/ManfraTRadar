@@ -1,0 +1,104 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="ManfraTorrent.App.Views.SourcesView">
+
+  <ScrollViewer>
+    <StackPanel Margin="28,24,28,32" Spacing="20" MaxWidth="920" HorizontalAlignment="Left">
+
+      <TextBlock Classes="h1" Text="Fontes e ajustes" />
+
+      <!-- Downloads -->
+      <StackPanel Spacing="8">
+        <TextBlock Classes="h2" Text="Downloads" />
+        <Border Classes="card">
+          <Grid ColumnDefinitions="*,16,140,16,140,16,140" RowDefinitions="Auto,Auto">
+            <TextBlock Grid.Row="0" Grid.Column="0" Classes="label" Text="Pasta de destino" />
+            <Grid Grid.Row="1" Grid.Column="0" ColumnDefinitions="*,Auto">
+              <TextBox Text="{Binding DownloadFolder}" />
+              <Button Grid.Column="1" Classes="ghost" Margin="8,0,0,0" Content="Escolher…"
+                      Command="{Binding BrowseFolderCommand}" />
+            </Grid>
+
+            <TextBlock Grid.Row="0" Grid.Column="2" Classes="label" Text="Porta de escuta" />
+            <TextBox Grid.Row="1" Grid.Column="2" Text="{Binding ListenPort}" />
+
+            <TextBlock Grid.Row="0" Grid.Column="4" Classes="label" Text="Máx. download KB/s" />
+            <TextBox Grid.Row="1" Grid.Column="4" Text="{Binding MaxDownloadKBps}" Watermark="0 = sem limite" />
+
+            <TextBlock Grid.Row="0" Grid.Column="6" Classes="label" Text="Máx. upload KB/s" />
+            <TextBox Grid.Row="1" Grid.Column="6" Text="{Binding MaxUploadKBps}" Watermark="0 = sem limite" />
+          </Grid>
+        </Border>
+      </StackPanel>
+
+      <!-- Fontes -->
+      <StackPanel Spacing="8">
+        <Grid ColumnDefinitions="*,Auto">
+          <StackPanel Spacing="2">
+            <TextBlock Classes="h2" Text="Fontes de busca e &quot;em alta&quot;" />
+            <TextBlock Classes="muted" TextWrapping="Wrap"
+                       Text="O Internet Archive já vem integrado. Para outros indexadores, rode o Jackett ou o Prowlarr, escolha os indexadores lá e cole aqui o endpoint Torznab e a API key." />
+          </StackPanel>
+          <Button Grid.Column="1" Classes="ghost" VerticalAlignment="Bottom" Margin="16,0,0,0"
+                  Content="+ Adicionar Torznab" Command="{Binding AddTorznabCommand}" />
+        </Grid>
+
+        <ItemsControl ItemsSource="{Binding Sources}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <StackPanel Spacing="10" />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Border Classes="card" Padding="16">
+                <StackPanel Spacing="10">
+                  <Grid ColumnDefinitions="Auto,*,Auto,Auto">
+                    <ToggleSwitch IsChecked="{Binding Enabled}" OnContent="" OffContent=""
+                                  VerticalAlignment="Center" ToolTip.Tip="Ativar / desativar" />
+                    <StackPanel Grid.Column="1" Spacing="2" Margin="6,0,0,0" VerticalAlignment="Center">
+                      <TextBox Text="{Binding Name}" IsVisible="{Binding IsTorznab}" MaxWidth="360"
+                               HorizontalAlignment="Left" />
+                      <TextBlock Text="{Binding Name}" FontSize="15" FontWeight="SemiBold"
+                                 IsVisible="{Binding !IsTorznab}" />
+                      <TextBlock Text="{Binding TypeLabel}" Classes="muted" />
+                    </StackPanel>
+                    <Button Grid.Column="2" Classes="ghost" Content="Testar" Margin="8,0,0,0"
+                            Command="{Binding TestCommand}" IsEnabled="{Binding !IsTesting}" />
+                    <Button Grid.Column="3" Classes="link" Content="Remover" Margin="8,0,0,0"
+                            Foreground="{StaticResource DangerBrush}"
+                            IsVisible="{Binding IsTorznab}"
+                            Command="{Binding $parent[UserControl].DataContext.RemoveSourceCommand}"
+                            CommandParameter="{Binding}" />
+                  </Grid>
+
+                  <Grid ColumnDefinitions="*,12,260" RowDefinitions="Auto,Auto" IsVisible="{Binding IsTorznab}">
+                    <TextBlock Classes="label" Text="Endpoint Torznab (termina em /api)" />
+                    <TextBox Grid.Row="1" Text="{Binding Url}"
+                             Watermark="http://127.0.0.1:9117/api/v2.0/indexers/all/results/torznab/api" />
+                    <TextBlock Grid.Column="2" Classes="label" Text="API key" />
+                    <TextBox Grid.Row="1" Grid.Column="2" Text="{Binding ApiKey}" PasswordChar="•"
+                             RevealPassword="False" />
+                  </Grid>
+
+                  <TextBlock Text="{Binding TestResult}" Classes="muted" TextWrapping="Wrap"
+                             IsVisible="{Binding TestResult, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                </StackPanel>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+
+      <!-- Ações -->
+      <Grid ColumnDefinitions="Auto,Auto,*,Auto">
+        <Button Classes="primary" Content="Salvar" Command="{Binding SaveCommand}" />
+        <Button Grid.Column="1" Classes="ghost" Content="Descartar" Margin="8,0,0,0" Command="{Binding RevertCommand}" />
+        <TextBlock Grid.Column="2" Text="{Binding StatusText}" Classes="muted" TextWrapping="Wrap"
+                   VerticalAlignment="Center" Margin="14,0" />
+        <Button Grid.Column="3" Classes="link" Content="Abrir pasta de dados do app"
+                Command="{Binding OpenDataFolderCommand}" />
+      </Grid>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>
