@@ -104,8 +104,16 @@ Os nomes `ManfraTorrent.*` dos projetos/namespaces vêm de antes do nome final. 
    - mostrar "atualizado há N min" ao lado do título, com botão de atualizar;
    - guardar o último resultado em disco (pasta de dados) para a lista aparecer na hora ao abrir o app,
      atualizando em segundo plano.
-4. Escolher arquivos antes de baixar (`SetFilePriorityAsync(file, Priority.DoNotDownload)`).
-5. Registrar o app como handler de `magnet:` (Windows: registro em `HKCU\Software\Classes\magnet`; Linux: `.desktop` com `MimeType=x-scheme-handler/magnet`) e aceitar o link via `args` em `Program.cs`.
-6. Ícone na bandeja / iniciar minimizado.
-7. Player embutido (LibVLCSharp) aproveitando o modo streaming.
+4. **Legendas PT-BR automáticas** ao terminar o download de um vídeo (e opcionalmente ao iniciar, no modo "em ordem"):
+   - provedores plugáveis (`ISubtitleProvider`), como os de busca: OpenSubtitles (API REST `api.opensubtitles.com`,
+     chave de API + login do usuário; o plano gratuito tem cota diária baixa) e SubDL (chave de API);
+   - busca primeiro pelo hash do arquivo (hash do OpenSubtitles: tamanho + primeiros e últimos 64 KB), que garante a
+     sincronia; se não achar, pelo nome (título, ano, SxxEyy extraídos do nome do arquivo);
+   - salvar ao lado do vídeo como `<nome do vídeo>.pt-BR.srt`, convertendo para UTF-8 (muitas legendas PT-BR vêm em Windows-1252);
+   - configurações: ligar/desligar, idiomas em ordem de preferência (padrão `pt-BR`, depois `pt`), chaves dos provedores;
+   - na tela de Downloads: indicador "legenda encontrada / não encontrada" e ação "buscar legenda de novo".
+5. Escolher arquivos antes de baixar (`SetFilePriorityAsync(file, Priority.DoNotDownload)`).
+6. Registrar o app como handler de `magnet:` (Windows: registro em `HKCU\Software\Classes\magnet`; Linux: `.desktop` com `MimeType=x-scheme-handler/magnet`) e aceitar o link via `args` em `Program.cs`.
+7. Ícone na bandeja / iniciar minimizado.
 8. Amarrar o tráfego a uma interface (VPN).
+9. (Por último, se fizer falta) Player embutido (LibVLCSharp) aproveitando o modo streaming.
