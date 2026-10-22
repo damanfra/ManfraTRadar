@@ -98,7 +98,8 @@ public partial class DownloadsViewModel : ViewModelBase
             "Concluídos" => items.Where(i => i.IsComplete),
             _ => items,
         };
-        var list = wanted.ToList();
+        // Agrupa por estado (OrderBy é estável: mantém a ordem de chegada dentro de cada grupo).
+        var list = wanted.OrderBy(i => i.SortGroup).ToList();
         if (!list.SequenceEqual(Visible))
         {
             Visible.Clear();

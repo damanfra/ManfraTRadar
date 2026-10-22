@@ -37,6 +37,10 @@
     <SolidColorBrush x:Key="LeechBrush" Color="#FFA15C" />
     <SolidColorBrush x:Key="DangerBrush" Color="#FF7B7B" />
     <SolidColorBrush x:Key="OnAccentBrush" Color="#0B0E13" />
+    <SolidColorBrush x:Key="SeedDimBrush" Color="#13291F" />
+    <SolidColorBrush x:Key="LeechDimBrush" Color="#33240F" />
+    <SolidColorBrush x:Key="DangerDimBrush" Color="#3A1A1D" />
+    <SolidColorBrush x:Key="NeutralDimBrush" Color="#232933" />
     <FontFamily x:Key="MonoFont">Cascadia Mono, Consolas, DejaVu Sans Mono, Liberation Mono, monospace</FontFamily>
   </Application.Resources>
 
@@ -191,6 +195,52 @@
       <Setter Property="Padding" Value="12,10" />
       <Setter Property="CornerRadius" Value="10" />
       <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+    </Style>
+
+    <!-- Etiqueta de estado dos downloads -->
+    <Style Selector="Border.state">
+      <Setter Property="CornerRadius" Value="999" />
+      <Setter Property="Padding" Value="8,3" />
+      <Setter Property="MinWidth" Value="92" />
+      <Setter Property="Background" Value="{StaticResource NeutralDimBrush}" />
+    </Style>
+    <Style Selector="Border.state > TextBlock">
+      <Setter Property="FontSize" Value="11" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="HorizontalAlignment" Value="Center" />
+      <Setter Property="Foreground" Value="{StaticResource MutedBrush}" />
+    </Style>
+    <Style Selector="Border.state.downloading, Border.state.checking">
+      <Setter Property="Background" Value="{StaticResource AccentDimBrush}" />
+    </Style>
+    <Style Selector="Border.state.downloading > TextBlock, Border.state.checking > TextBlock">
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}" />
+    </Style>
+    <Style Selector="Border.state.metadata">
+      <Setter Property="Background" Value="{StaticResource LeechDimBrush}" />
+    </Style>
+    <Style Selector="Border.state.metadata > TextBlock">
+      <Setter Property="Foreground" Value="{StaticResource LeechBrush}" />
+    </Style>
+    <Style Selector="Border.state.seeding">
+      <Setter Property="Background" Value="{StaticResource SeedDimBrush}" />
+    </Style>
+    <Style Selector="Border.state.seeding > TextBlock, Border.state.done > TextBlock">
+      <Setter Property="Foreground" Value="{StaticResource SeedBrush}" />
+    </Style>
+    <Style Selector="Border.state.done">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderBrush" Value="{StaticResource SeedBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+    </Style>
+    <Style Selector="Border.state.error">
+      <Setter Property="Background" Value="{StaticResource DangerDimBrush}" />
+    </Style>
+    <Style Selector="Border.state.error > TextBlock">
+      <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
+    </Style>
+    <Style Selector="Grid.dlrow.dimmed">
+      <Setter Property="Opacity" Value="0.6" />
     </Style>
 
     <!-- Barras de progresso -->

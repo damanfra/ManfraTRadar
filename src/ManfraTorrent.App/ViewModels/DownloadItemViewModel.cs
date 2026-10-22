@@ -34,6 +34,28 @@ public partial class DownloadItemViewModel : ViewModelBase
     [ObservableProperty] private bool isBusy;
 
     public bool IsActive => IsRunning && !IsComplete;
+
+    // ---- Estado em destaque (etiqueta colorida + ordem na aba Todos) ----
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(KindDownloading), nameof(KindMetadata), nameof(KindChecking),
+        nameof(KindPaused), nameof(KindSeeding), nameof(KindDone), nameof(KindError))]
+    private string stateKind = "";
+
+    [ObservableProperty] private string stateLabel = "";
+
+    /// <summary>Concluídos parados e pausados ficam mais apagados na lista.</summary>
+    [ObservableProperty] private bool isDimmed;
+
+    public bool KindDownloading => StateKind == "downloading";
+    public bool KindMetadata => StateKind == "metadata";
+    public bool KindChecking => StateKind == "checking";
+    public bool KindPaused => StateKind == "paused";
+    public bool KindSeeding => StateKind == "seeding";
+    public bool KindDone => StateKind == "done";
+    public bool KindError => StateKind == "error";
+
+    /// <summary>Ordem na aba Todos: erro, baixando, metadados, pausado, semeando, concluído.</summary>
+    public int SortGroup { get; private set; }
     public long DownloadRate { get; private set; }
     public long UploadRate { get; private set; }
 
@@ -59,18 +81,34 @@ public partial class DownloadItemViewModel : ViewModelBase
         IsRunning = !IsPaused && !IsError;
         OnPropertyChanged(nameof(IsActive));
 
+        (StateKind, StateLabel, SortGroup) = state switch
+        {
+            TorrentState.Error => ("error", "Erro", 0),
+            TorrentState.Downloading => ("downloading", "Baixando", 1),
+            TorrentState.Hashing or TorrentState.Starting or TorrentState.FetchingHashes
+                or TorrentState.Stopping => ("checking", "Verificando", 1),
+            TorrentState.Metadata => ("metadata", "Metadados", 2),
+            TorrentState.Seeding => ("seeding", "Semeando", 4),
+            _ when IsComplete => ("done", "Concluído", 5),
+            _ => ("paused", "Pausado", 3),
+        };
+        IsDimmed = StateKind is "done" or "paused";
+
+        var waiting = DateTime.Now - m.StartTime;
         StatusText = state switch
         {
-            TorrentState.Metadata => $"Buscando metadados… · {m.OpenConnections} pares",
+            TorrentState.Metadata when m.OpenConnections == 0 && waiting > TimeSpan.FromMinutes(10)
+                => $"Ninguém compartilhando ainda · procurando há {Format.Duration(waiting)}",
+            TorrentState.Metadata => $"Buscando metadados há {Format.Duration(waiting)} · {m.OpenConnections} pares",
             TorrentState.Hashing => "Verificando arquivos…",
             TorrentState.Starting => "Iniciando…",
             TorrentState.Stopping => "Parando…",
             TorrentState.FetchingHashes => "Buscando hashes…",
             TorrentState.Downloading => $"{m.OpenConnections} pares conectados · {m.Peers.Seeds} seeds · {m.Peers.Leechs} leechers",
-            TorrentState.Seeding => $"Concluído · semeando para {m.UploadingTo} par(es)",
-            TorrentState.Error => "Erro: " + (m.Error?.Exception.Message ?? "desconhecido"),
-            _ when IsComplete => "Concluído · parado",
-            _ => "Pausado",
+            TorrentState.Seeding => $"Compartilhando com {m.UploadingTo} par(es)",
+            TorrentState.Error => m.Error?.Exception.Message ?? "Erro desconhecido",
+            _ when IsComplete => "Parado · não está compartilhando",
+            _ => "Pausado por você",
         };
 
         LeftText = hasMetadata

@@ -36,6 +36,15 @@ public static class Format
         return $"{t.Seconds} s";
     }
 
+    /// <summary>Duração curta: "3 min", "2 h 10 min", "1 d 4 h".</summary>
+    public static string Duration(TimeSpan t)
+    {
+        if (t < TimeSpan.Zero) t = TimeSpan.Zero;
+        if (t.TotalDays >= 1) return $"{(int) t.TotalDays} d {t.Hours} h";
+        if (t.TotalHours >= 1) return $"{(int) t.TotalHours} h {t.Minutes} min";
+        return $"{Math.Max(1, (int) t.TotalMinutes)} min";
+    }
+
     public static string Age(DateTimeOffset? when)
     {
         if (when is null) return "";
