@@ -140,17 +140,49 @@ public partial class SubtitleViewModel : ViewModelBase
         }
     }
 
-    /// <summary>Etapa 2: mostra o que será consultado; se houver cache, mostra os resultados guardados.</summary>
+    // ---- Termo da busca (editável) ----
+    [ObservableProperty] private string searchTitle = "";
+    [ObservableProperty] private string searchYear = "";
+    [ObservableProperty] private string episodeText = "";
+
+    public bool IsEpisodeVideo => SelectedVideo?.Info.Parsed.IsEpisode == true;
+
+    /// <summary>O vídeo com o termo que está na tela (título/ano editados pelo usuário).</summary>
+    VideoInfo? QueryVideo()
+    {
+        var video = SelectedVideo?.Info;
+        if (video is null) return null;
+        var title = string.IsNullOrWhiteSpace(SearchTitle) ? video.Parsed.Title : SearchTitle.Trim();
+        int? year = int.TryParse(SearchYear.Trim(), out var y) && y is > 1880 and < 2100 ? y : null;
+        if (video.Parsed.IsEpisode) year = null; // séries buscam por temporada/episódio
+        return video.WithParsed(video.Parsed with { Title = title, Year = year });
+    }
+
+    /// <summary>Etapa 2: preenche o termo a partir do nome do arquivo; se já houver busca guardada, mostra.</summary>
     void PrepareForVideo()
+    {
+        var video = SelectedVideo?.Info;
+        OnPropertyChanged(nameof(IsEpisodeVideo));
+        SearchTitle = video?.Parsed.Title ?? "";
+        SearchYear = video?.Parsed.Year?.ToString() ?? "";
+        EpisodeText = video?.Parsed.IsEpisode == true
+            ? $"S{video.Parsed.Season:00}E{video.Parsed.Episode:00}"
+            : "";
+        RefreshForTerm();
+    }
+
+    /// <summary>Atualiza o resumo e mostra o cache do termo atual (sem internet).</summary>
+    void RefreshForTerm()
     {
         Candidates.Clear();
         SelectedCandidate = null;
         HasResults = false;
+        ResultsHeader = "";
         SavedPath = null;
         StatusText = "";
         QuotaText = service.OpenSubtitlesQuotaText();
 
-        var video = SelectedVideo?.Info;
+        var video = QueryVideo();
         if (video is null)
         {
             CanSearch = false;
@@ -161,62 +193,72 @@ public partial class SubtitleViewModel : ViewModelBase
         if (providers.Count == 0)
         {
             SummaryText = "Nenhum serviço de legendas configurado. Preencha a chave do OpenSubtitles e/ou do SubDL " +
-                          "em Fontes e ajustes → Legendas.";
+                          "em Fontes e ajustes → Legendas PT-BR.";
             CanSearch = false;
             CanSearchAgain = false;
             return;
         }
 
-        var p = video.Parsed;
-        var what = p.IsEpisode
-            ? $"“{p.Title}” S{p.Season:00}E{p.Episode:00}"
-            : p.Year is { } y ? $"“{p.Title}” ({y})" : $"“{p.Title}”";
-
         var cached = service.GetCached(video);
         if (cached is not null)
         {
-            SummaryText = $"Busca já feita em {cached.SearchedAt.ToLocalTime():dd/MM HH:mm} para {what}. " +
+            SummaryText = $"Busca por “{video.Parsed.Title}” já feita em {cached.SearchedAt.ToLocalTime():dd/MM HH:mm}. " +
                           "Mostrando os resultados guardados, sem consultar a internet.";
             ShowResults(cached);
-            CanSearch = false;
+            SearchButtonText = "Buscar";
+            CanSearch = true;
             CanSearchAgain = true;
             return;
         }
 
         var services = string.Join(" e ", providers.Select(x => $"{x.Name} (1 busca)"));
-        var hashNote = video.OsHash is null ? "" : " usando a impressão digital do arquivo, para achar legendas sincronizadas";
-        SummaryText = $"Vai consultar {services} por {what}{hashNote}. " +
-                      "Buscar não gasta cota; nenhuma legenda é baixada até você escolher.";
+        var hashNote = video.OsHash is null ? "" : " e pela impressão digital do arquivo (acha as sincronizadas)";
+        SummaryText = $"Vai consultar {services} pelo termo abaixo{hashNote}. " +
+                      "Buscar não gasta cota; nenhuma legenda é baixada até você escolher. " +
+                      "Pode encurtar ou corrigir o termo antes de buscar.";
         SearchButtonText = video.HasPortugueseLocally ? "Buscar mesmo assim" : "Buscar";
         CanSearch = true;
         CanSearchAgain = false;
     }
 
+    /// <summary>Buscar: usa o resultado guardado deste termo, se existir; senão consulta os serviços.</summary>
     [RelayCommand]
-    private Task Search() => RunSearchAsync();
+    private Task Search()
+    {
+        var video = QueryVideo();
+        if (video is not null && service.GetCached(video) is { } cached)
+        {
+            SummaryText = $"Busca por “{video.Parsed.Title}” já feita em {cached.SearchedAt.ToLocalTime():dd/MM HH:mm}. " +
+                          "Mostrando os resultados guardados, sem consultar a internet. Use “Buscar de novo” para atualizar.";
+            ShowResults(cached);
+            CanSearchAgain = true;
+            return Task.CompletedTask;
+        }
+        return RunSearchAsync();
+    }
 
+    /// <summary>Ignora o resultado guardado e consulta de novo (buscar não gasta cota).</summary>
     [RelayCommand]
     private Task SearchAgain() => RunSearchAsync();
 
     async Task RunSearchAsync()
     {
-        var video = SelectedVideo?.Info;
+        var video = QueryVideo();
         if (video is null || IsBusy) return;
 
         IsBusy = true;
-        CanSearch = false;
         StatusText = "Buscando…";
         cts = new CancellationTokenSource(TimeSpan.FromSeconds(45));
         try
         {
             var result = await service.SearchAsync(video, cts.Token);
+            SummaryText = $"Busca por “{video.Parsed.Title}” feita agora.";
             ShowResults(result);
             CanSearchAgain = true;
         }
         catch (Exception ex)
         {
             StatusText = "Falha na busca: " + ex.Message;
-            CanSearch = true;
         }
         finally
         {
@@ -232,9 +274,10 @@ public partial class SubtitleViewModel : ViewModelBase
 
         HasResults = Candidates.Count > 0;
         var synced = Candidates.Count(c => c.HashMatch);
+        var hidden = result.HiddenOtherTitles > 0 ? $" · {result.HiddenOtherTitles} de outros títulos escondida(s)" : "";
         ResultsHeader = Candidates.Count == 0
-            ? "Nenhuma legenda PT-BR encontrada."
-            : $"{Candidates.Count} legenda(s)" + (synced > 0 ? $" · {synced} sincronizada(s) com o seu arquivo" : "");
+            ? "Nenhuma legenda PT-BR encontrada para este termo" + hidden
+            : $"{Candidates.Count} legenda(s)" + (synced > 0 ? $" · {synced} sincronizada(s) com o seu arquivo" : "") + hidden;
 
         StatusText = result.Errors.Count > 0 ? "Alguns serviços falharam: " + string.Join(" | ", result.Errors) : "";
         SelectedCandidate = Candidates.FirstOrDefault();

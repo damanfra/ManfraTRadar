@@ -135,8 +135,9 @@ public sealed class SubtitleService
         var result = new CachedSearch
         {
             SearchedAt = DateTimeOffset.UtcNow,
-            Candidates = SubtitleRanker.Rank(all, video),
+            Candidates = SubtitleRanker.Rank(all, video, out var hidden),
             Errors = errors,
+            HiddenOtherTitles = hidden,
         };
 
         // Só guarda se ao menos um provedor respondeu (erro de rede não vira "nada encontrado").

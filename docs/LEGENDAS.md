@@ -39,12 +39,17 @@ O antigo opensubtitles.org (API XML-RPC) foi desativado; usar só a API REST do 
    - calcula o **hash do OpenSubtitles** (tamanho + primeiros e últimos 64 KB; leitura local, instantânea).
 3. **Etapa 2 — confirmação**: "Vai consultar OpenSubtitles (1 busca) e SubDL (1 busca) para 1 vídeo.
    Nenhum download de legenda até você escolher. Cota OpenSubtitles hoje: 18 de 20." → **Buscar** / Cancelar.
+   O **termo da busca é editável** (título e ano; em séries, o episódio vem do nome do arquivo): dá para encurtar ou
+   corrigir e buscar de novo. Cada termo tem seu próprio resultado guardado.
 4. **Etapa 3 — resultados**, ordenados:
    1. ★ **Sincronizada com seu arquivo** (`moviehash_match` do OpenSubtitles): mesma versão do vídeo, encaixe garantido;
    2. mesmo grupo/release do nome do arquivo (ex.: `WEB-DL`, `BTM`, `TOXIC`);
    3. mais baixadas / de autores confiáveis.
 
-   Escondidas por padrão: tradução automática ou por IA (`machine_translated`, `ai_translated`).
+   Escondidas por padrão: tradução automática ou por IA (`machine_translated`, `ai_translated`) e **resultados de
+   outros títulos** (a busca por nome dos serviços é frouxa: qualquer filme com "of"/"the" no nome aparece; o app
+   exige todas as palavras do termo no nome da release ou no título informado pelo serviço; a sincronizada pelo hash
+   sempre fica). O cabeçalho diz quantas foram escondidas.
    Cada linha diz se o download **usa cota** (OpenSubtitles) ou **não usa** (SubDL).
 5. **Etapa 4 — baixar a escolhida**: salva ao lado do vídeo, converte para **UTF-8** (muitas PT-BR vêm em
    Windows-1252 e ficam com acentos quebrados) e marca o download com "legenda ✓".

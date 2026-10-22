@@ -80,10 +80,12 @@ public sealed class OpenSubtitlesProvider(SubtitleService service, string apiKey
             if (fileId is null) continue;
 
             int? season = null, episode = null;
+            var featureTitle = "";
             if (a.TryGetProperty("feature_details", out var fd))
             {
                 season = Int(fd, "season_number");
                 episode = Int(fd, "episode_number");
+                featureTitle = Str(fd, "parent_title") ?? Str(fd, "title") ?? Str(fd, "movie_name") ?? "";
             }
 
             list.Add(new SubtitleCandidate
@@ -100,6 +102,7 @@ public sealed class OpenSubtitlesProvider(SubtitleService service, string apiKey
                 Season = season,
                 Episode = episode,
                 PageUrl = Str(a, "url"),
+                FeatureTitle = featureTitle,
             });
         }
         return list;

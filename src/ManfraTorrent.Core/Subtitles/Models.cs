@@ -24,8 +24,23 @@ public sealed class VideoInfo
 
     public string FileName => System.IO.Path.GetFileName(Path);
 
-    /// <summary>Chave do cache: hash + tamanho (o mesmo arquivo em outra pasta reaproveita a busca).</summary>
-    public string CacheKey => $"{OsHash ?? "nohash"}:{Size}";
+    /// <summary>
+    /// Chave do cache: hash + tamanho + termo buscado (o mesmo arquivo em outra pasta reaproveita a busca;
+    /// mudar o termo é outra busca).
+    /// </summary>
+    public string CacheKey =>
+        $"{OsHash ?? "nohash"}:{Size}:{Parsed.Title.Trim().ToLowerInvariant()}:{Parsed.Year}:{Parsed.Season}:{Parsed.Episode}";
+
+    /// <summary>Cópia com outro termo de busca (o usuário editou o título/ano na tela).</summary>
+    public VideoInfo WithParsed(ParsedName parsed) => new()
+    {
+        Path = Path,
+        Size = Size,
+        Parsed = parsed,
+        OsHash = OsHash,
+        LocalFindings = LocalFindings,
+        HasPortugueseLocally = HasPortugueseLocally,
+    };
 }
 
 /// <summary>Uma legenda encontrada por algum serviço. Serializável (vai para o cache).</summary>
@@ -49,6 +64,9 @@ public sealed class SubtitleCandidate
     public bool FullSeason { get; set; }
     public string? PageUrl { get; set; }
 
+    /// <summary>Título do filme/série segundo o serviço (quando informado).</summary>
+    public string FeatureTitle { get; set; } = "";
+
     /// <summary>Calculado pelo <see cref="SubtitleRanker"/> para ordenar.</summary>
     public double Score { get; set; }
     public bool SameGroup { get; set; }
@@ -59,6 +77,9 @@ public sealed class CachedSearch
     public DateTimeOffset SearchedAt { get; set; }
     public List<SubtitleCandidate> Candidates { get; set; } = [];
     public List<string> Errors { get; set; } = [];
+
+    /// <summary>Resultados de outros títulos que vieram na busca e foram escondidos.</summary>
+    public int HiddenOtherTitles { get; set; }
 }
 
 /// <summary>Estado persistido em subtitles.json na pasta de dados.</summary>
