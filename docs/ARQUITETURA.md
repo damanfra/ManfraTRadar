@@ -43,6 +43,12 @@ Os nomes `ManfraTorrent.*` dos projetos são anteriores ao nome do app; o execut
 2. Consulta todas em paralelo. Sem termo de busca, chama `GetTrendingAsync`; com termo, `SearchAsync`.
 3. Junta os resultados em `SearchResult` e ordena pela opção escolhida. "Mais populares" usa `Score` = seeders, ou downloads na semana quando a fonte não tem dados do swarm.
 4. Uma fonte que falha não derruba as outras; o erro aparece na linha de status.
+5. Ao buscar com termo, a ordenação muda para **Relevância**: mantém a ordem que cada fonte devolveu e intercala
+   as fontes (1º de cada, depois 2º de cada...). Ao voltar para "Em alta", volta para "Mais populares".
+
+Busca no Internet Archive: primeiro exige **todas** as palavras no título (`title:(a AND b AND c)`), sem `sort`
+(relevância do próprio Archive). Se não achar nada, tenta todas as palavras em qualquer campo. O Archive só tem
+domínio público e acervo; lançamentos comerciais só aparecem pelas fontes Torznab.
 
 | Fonte | "Em alta" | Link usado |
 |---|---|---|
@@ -59,7 +65,9 @@ Mapeamento de categorias Torznab: Filmes 2000, Séries 5000, Software 4000, Jogo
 - `http(s)://` → `TorrentFetcher` baixa sem seguir redirects automaticamente. Jackett/Prowlarr costumam responder 302 para `magnet:`, e o `HttpClient` não segue esse esquema, então o fetcher trata o redirect manualmente.
 - caminho local de `.torrent` → `Torrent.LoadAsync`
 
-Se o infohash já estiver no motor, só retoma o existente. `sequential = true` usa `AddStreamingAsync`, o modo streaming do MonoTorrent, que baixa as peças em ordem.
+Se o infohash já estiver no motor, só retoma o existente. Quando o download vem do Descobrir, o título do resultado
+fica salvo em `AppSettings.DisplayNames` (infohash → título) e é o nome mostrado em Downloads, porque o nome interno
+do torrent às vezes é só um identificador (caso do Internet Archive). `sequential = true` usa `AddStreamingAsync`, o modo streaming do MonoTorrent, que baixa as peças em ordem.
 
 ### Persistência
 

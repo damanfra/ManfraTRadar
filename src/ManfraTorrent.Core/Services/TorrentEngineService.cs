@@ -96,8 +96,23 @@ public sealed class TorrentEngineService
 
     public static string KeyOf(TorrentManager manager) => manager.InfoHashes.V1OrV2.ToHex();
 
+    /// <summary>Título amigável salvo ao adicionar pela busca; senão, o nome do próprio torrent.</summary>
+    public string DisplayNameOf(TorrentManager manager)
+    {
+        if (store.Settings.DisplayNames.TryGetValue(KeyOf(manager), out var name) && !string.IsNullOrWhiteSpace(name))
+            return name;
+        return string.IsNullOrEmpty(manager.Name) ? KeyOf(manager) : manager.Name;
+    }
+
+    void RememberDisplayName(TorrentManager manager, string? displayName)
+    {
+        if (string.IsNullOrWhiteSpace(displayName)) return;
+        store.Settings.DisplayNames[KeyOf(manager)] = displayName.Trim();
+        store.Save();
+    }
+
     /// <summary>Aceita link magnet, URL http(s) de .torrent ou caminho de arquivo .torrent.</summary>
-    public async Task<TorrentManager> AddAsync(string input, bool sequential, CancellationToken ct = default)
+    public async Task<TorrentManager> AddAsync(string input, bool sequential, CancellationToken ct = default, string? displayName = null)
     {
         if (Engine is null) throw new InvalidOperationException("O motor ainda está iniciando.");
         input = input.Trim().Trim('"');
@@ -135,6 +150,7 @@ public sealed class TorrentEngineService
             var existing = Engine.Torrents.FirstOrDefault(t => t.InfoHashes.Equals(infoHashes));
             if (existing is not null)
             {
+                RememberDisplayName(existing, displayName);
                 await ResumeAsync(existing);
                 return existing;
             }
@@ -153,6 +169,7 @@ public sealed class TorrentEngineService
                     ? await Engine.AddStreamingAsync(magnet!, saveDirectory, settings)
                     : await Engine.AddAsync(magnet!, saveDirectory, settings);
 
+            RememberDisplayName(manager, displayName);
             await manager.StartAsync();
             await SaveStateCoreAsync();
             return manager;
@@ -193,6 +210,7 @@ public sealed class TorrentEngineService
             await Engine.RemoveAsync(manager,
                 deleteFiles ? RemoveMode.CacheDataAndDownloadedData : RemoveMode.CacheDataOnly);
             store.Settings.PausedTorrents.RemoveAll(k => string.Equals(k, KeyOf(manager), StringComparison.OrdinalIgnoreCase));
+            store.Settings.DisplayNames.Remove(KeyOf(manager));
             store.Save();
             await SaveStateCoreAsync();
         }

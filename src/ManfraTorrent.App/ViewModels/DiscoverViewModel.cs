@@ -25,7 +25,10 @@ public partial class DiscoverViewModel : ViewModelBase
     }
 
     public IReadOnlyList<CategoryOption> Categories => CategoryOption.AllOptions;
-    public IReadOnlyList<string> SortModes { get; } = ["Mais populares", "Mais novos", "Maiores", "A–Z"];
+    public IReadOnlyList<string> SortModes { get; } = [Relevance, "Mais populares", "Mais novos", "Maiores", "A–Z"];
+
+    const string Relevance = "Relevância";
+    const string Popular = "Mais populares";
     public ObservableCollection<SearchResultViewModel> Results { get; } = [];
 
     [ObservableProperty] private CategoryOption selectedCategory;
@@ -55,12 +58,18 @@ public partial class DiscoverViewModel : ViewModelBase
     partial void OnIsBusyChanged(bool value) => OnPropertyChanged(nameof(IsEmpty));
 
     [RelayCommand]
-    private Task Search() => RefreshAsync();
+    private Task Search()
+    {
+        // Numa busca, a ordem que a fonte devolve (relevância) é a mais útil.
+        if (SearchText.Trim().Length > 0) SortMode = Relevance;
+        return RefreshAsync();
+    }
 
     [RelayCommand]
     private Task ClearSearch()
     {
         SearchText = "";
+        if (SortMode == Relevance) SortMode = Popular;
         return RefreshAsync();
     }
 
@@ -121,10 +130,25 @@ public partial class DiscoverViewModel : ViewModelBase
         }
     }
 
+    /// <summary>
+    /// Mantém a ordem de relevância de cada fonte e intercala as fontes
+    /// (1º de cada, depois 2º de cada...), para nenhuma dominar o topo.
+    /// </summary>
+    static IEnumerable<SearchResult> InterleaveBySource(List<SearchResult> items)
+    {
+        var groups = items.GroupBy(r => r.Source).Select(g => g.ToList()).ToList();
+        var max = groups.Count == 0 ? 0 : groups.Max(g => g.Count);
+        for (var i = 0; i < max; i++)
+            foreach (var g in groups)
+                if (i < g.Count)
+                    yield return g[i];
+    }
+
     void ApplySort()
     {
         IEnumerable<SearchResult> sorted = SortMode switch
         {
+            Relevance => InterleaveBySource(raw),
             "Mais novos" => raw.OrderByDescending(r => r.Published ?? DateTimeOffset.MinValue),
             "Maiores" => raw.OrderByDescending(r => r.SizeBytes ?? 0),
             "A–Z" => raw.OrderBy(r => r.Title, StringComparer.CurrentCultureIgnoreCase),
@@ -153,9 +177,9 @@ public partial class DiscoverViewModel : ViewModelBase
         item.IsAdding = true;
         try
         {
-            var manager = await engine.AddAsync(link, sequential);
+            var manager = await engine.AddAsync(link, sequential, displayName: item.Model.Title);
             item.Added = true;
-            StatusText = $"Adicionado aos downloads: {manager.Name}";
+            StatusText = $"Adicionado aos downloads: {item.Model.Title}";
             downloads.Refresh();
         }
         catch (Exception ex)

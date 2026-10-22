@@ -13,11 +13,12 @@ Alvo: **Windows primeiro, Linux depois**, com o mesmo código.
 
 ## Estado atual (v0.1)
 
-- **O código nunca foi compilado.** Foi escrito num ambiente sem acesso ao NuGet. As APIs foram conferidas
-  no código-fonte do MonoTorrent 3.0.2 e do Avalonia 11.3, mas a primeira tarefa numa máquina nova é
-  `dotnet build` e corrigir o que aparecer.
+- **Compila e roda no Windows** (primeira execução em 22/10/2026, .NET SDK 10.0.402, sem erros nem avisos).
+  Testado: Descobrir com o Internet Archive, busca, painel de detalhes e dois downloads do Archive até o fim
+  (semeando). Fontes Torznab ainda não testadas com um Jackett/Prowlarr real. Linux ainda não testado.
+- Pasta de desenvolvimento no PC do Daniel: `C:\Projetos\ManfraTRadar`.
 - Telas prontas: Descobrir, Downloads, Fontes e ajustes.
-- O ambiente de desenvolvimento será outra máquina e outra rede: o passo a passo está em `docs/AMBIENTE.md`.
+- Para montar o ambiente numa máquina nova: `docs/AMBIENTE.md`.
 
 ## Stack
 
@@ -82,8 +83,7 @@ Os nomes `ManfraTorrent.*` dos projetos/namespaces vêm de antes do nome final. 
 
 ## Próximos passos
 
-1. Primeira compilação e correções.
-2. **Tela de Configurações** (separada de "Fontes"), com:
+1. **Tela de Configurações** (separada de "Fontes"), com:
    - velocidade máxima de upload e download (hoje fica em *Fontes e ajustes*; mover para cá);
    - ação ao terminar os downloads: nada, fechar o app ou desligar o PC
      (Windows: `shutdown /s /t 60`; Linux: `systemctl poweroff`; avisar com contagem regressiva e opção de cancelar);
@@ -96,7 +96,7 @@ Os nomes `ManfraTorrent.*` dos projetos/namespaces vêm de antes do nome final. 
    - bloquear conteúdo adulto (sim/não): descartar resultados das categorias Torznab 6000–6999 (XXX) e,
      como reforço, filtrar por palavras-chave no título. Vale para Descobrir e para a busca;
    - intervalo de atualização do Descobrir: nunca / 15 / 30 / 60 min (padrão 30).
-3. **Atualização automática do Descobrir** (hoje só atualiza ao abrir o app, trocar categoria, buscar ou salvar fontes):
+2. **Atualização automática do Descobrir** (hoje só atualiza ao abrir o app, trocar categoria, buscar ou salvar fontes):
    - timer conforme o intervalo configurado; pular enquanto a janela estiver minimizada e atualizar ao voltar,
      se o intervalo já tiver passado;
    - não atrapalhar quem está olhando: manter o item selecionado e a posição da lista. Durante uma busca,
@@ -104,7 +104,7 @@ Os nomes `ManfraTorrent.*` dos projetos/namespaces vêm de antes do nome final. 
    - mostrar "atualizado há N min" ao lado do título, com botão de atualizar;
    - guardar o último resultado em disco (pasta de dados) para a lista aparecer na hora ao abrir o app,
      atualizando em segundo plano.
-4. **Legendas PT-BR automáticas** ao terminar o download de um vídeo (e opcionalmente ao iniciar, no modo "em ordem"):
+3. **Legendas PT-BR automáticas** ao terminar o download de um vídeo (e opcionalmente ao iniciar, no modo "em ordem"):
    - provedores plugáveis (`ISubtitleProvider`), como os de busca: OpenSubtitles (API REST `api.opensubtitles.com`,
      chave de API + login do usuário; o plano gratuito tem cota diária baixa) e SubDL (chave de API);
    - busca primeiro pelo hash do arquivo (hash do OpenSubtitles: tamanho + primeiros e últimos 64 KB), que garante a
@@ -112,7 +112,7 @@ Os nomes `ManfraTorrent.*` dos projetos/namespaces vêm de antes do nome final. 
    - salvar ao lado do vídeo como `<nome do vídeo>.pt-BR.srt`, convertendo para UTF-8 (muitas legendas PT-BR vêm em Windows-1252);
    - configurações: ligar/desligar, idiomas em ordem de preferência (padrão `pt-BR`, depois `pt`), chaves dos provedores;
    - na tela de Downloads: indicador "legenda encontrada / não encontrada" e ação "buscar legenda de novo".
-5. **Controle remoto pelo Android** (o Android só controla; quem baixa é sempre o desktop):
+4. **Controle remoto pelo Android** (o Android só controla; quem baixa é sempre o desktop):
    - **API no desktop:** servidor HTTP embutido no app (ASP.NET Core / Kestrel) com endpoints para buscar no Descobrir
      (categoria + termo, usando as fontes do desktop, inclusive Jackett/Prowlarr), adicionar download (link + "em ordem"),
      listar downloads com progresso e velocidades, e pausar, retomar ou remover. Liga/desliga e porta em Configurações;
@@ -124,8 +124,8 @@ Os nomes `ManfraTorrent.*` dos projetos/namespaces vêm de antes do nome final. 
    - **Refatoração:** extrair uma interface (ex.: `ITorrentBackend`) para os ViewModels funcionarem com o motor local
      (desktop) ou com o desktop remoto (Android), reaproveitando ViewModels e estilos;
    - visual mobile: seguir o protótipo em `docs/prototipo-android/`.
-6. Escolher arquivos antes de baixar (`SetFilePriorityAsync(file, Priority.DoNotDownload)`).
-7. Registrar o app como handler de `magnet:` (Windows: registro em `HKCU\Software\Classes\magnet`; Linux: `.desktop` com `MimeType=x-scheme-handler/magnet`) e aceitar o link via `args` em `Program.cs`.
-8. Ícone na bandeja / iniciar minimizado.
-9. Amarrar o tráfego a uma interface (VPN).
-10. (Por último, se fizer falta) Player embutido (LibVLCSharp) aproveitando o modo streaming.
+5. Escolher arquivos antes de baixar (`SetFilePriorityAsync(file, Priority.DoNotDownload)`).
+6. Registrar o app como handler de `magnet:` (Windows: registro em `HKCU\Software\Classes\magnet`; Linux: `.desktop` com `MimeType=x-scheme-handler/magnet`) e aceitar o link via `args` em `Program.cs`.
+7. Ícone na bandeja / iniciar minimizado.
+8. Amarrar o tráfego a uma interface (VPN).
+9. (Por último, se fizer falta) Player embutido (LibVLCSharp) aproveitando o modo streaming.

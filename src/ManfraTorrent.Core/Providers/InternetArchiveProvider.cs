@@ -26,18 +26,36 @@ public sealed class InternetArchiveProvider : ITorrentProvider
     public Task<IReadOnlyList<SearchResult>> GetTrendingAsync(Category category, CancellationToken ct) =>
         QueryAsync(ScopeFor(category), "week desc", category, ct);
 
-    public Task<IReadOnlyList<SearchResult>> SearchAsync(string query, Category category, CancellationToken ct)
+    public async Task<IReadOnlyList<SearchResult>> SearchAsync(string query, Category category, CancellationToken ct)
     {
-        var terms = new string(query.Where(c => !"()\"\\:".Contains(c)).ToArray()).Trim();
-        return QueryAsync($"({terms}) AND {ScopeFor(category)}", "downloads desc", category, ct);
+        var words = Words(query);
+        if (words.Count == 0) return await GetTrendingAsync(category, ct);
+
+        // 1ª tentativa: TODAS as palavras no título, ordenado por relevância (sem "sort").
+        var titleQuery = "title:(" + string.Join(" AND ", words) + ")";
+        var results = await QueryAsync($"{titleQuery} AND {ScopeFor(category)}", null, category, ct);
+        if (results.Count > 0) return results;
+
+        // Nada no título: busca ampla (qualquer campo), ainda exigindo todas as palavras.
+        var anyField = "(" + string.Join(" AND ", words) + ")";
+        return await QueryAsync($"{anyField} AND {ScopeFor(category)}", null, category, ct);
     }
 
-    async Task<IReadOnlyList<SearchResult>> QueryAsync(string q, string sort, Category category, CancellationToken ct)
+    /// <summary>Quebra o termo em palavras, removendo a sintaxe do Lucene para não quebrar a consulta.</summary>
+    static List<string> Words(string query)
+    {
+        var clean = new string(query.Select(c => char.IsLetterOrDigit(c) ? c : ' ').ToArray());
+        return clean.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .Where(w => w is not ("AND" or "OR" or "NOT"))
+            .ToList();
+    }
+
+    async Task<IReadOnlyList<SearchResult>> QueryAsync(string q, string? sort, Category category, CancellationToken ct)
     {
         string[] fields = ["identifier", "title", "item_size", "downloads", "week", "publicdate", "mediatype", "collection"];
         var url = "https://archive.org/advancedsearch.php?q=" + Uri.EscapeDataString(q)
                   + string.Concat(fields.Select(f => "&fl%5B%5D=" + f))
-                  + "&sort%5B%5D=" + Uri.EscapeDataString(sort)
+                  + (sort is null ? "" : "&sort%5B%5D=" + Uri.EscapeDataString(sort))
                   + "&rows=60&page=1&output=json";
 
         await using var stream = await Http.Api.GetStreamAsync(url, ct);

@@ -34,6 +34,12 @@ public sealed class AppSettings
     /// <summary>Infohashes (hex) que o usuário pausou; não são retomados ao abrir o app.</summary>
     public List<string> PausedTorrents { get; set; } = [];
 
+    /// <summary>
+    /// Nome amigável de cada download (infohash hex → título da busca). O nome interno do torrent
+    /// às vezes é só um identificador, como no Internet Archive ("good-trick-animated-short").
+    /// </summary>
+    public Dictionary<string, string> DisplayNames { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+
     public List<SourceConfig> Sources { get; set; } = [];
 
     public static AppSettings CreateDefault() => new()

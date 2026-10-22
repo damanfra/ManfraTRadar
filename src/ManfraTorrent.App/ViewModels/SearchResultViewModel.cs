@@ -26,12 +26,12 @@ public partial class SearchResultViewModel : ViewModelBase
     public bool HasSwarm => Model.Seeders is not null;
     public string SeedsText => "▲ " + Format.Number(Model.Seeders ?? 0);
     public string LeechText => "▼ " + Format.Number(Model.Leechers ?? 0);
-    public string PopularityText => Model.Popularity is { } p ? $"{Format.Number(p)} downloads/sem." : "";
+    public string PopularityText => Model.Popularity is { } p ? $"{Format.Number(p)} {(p == 1 ? "download" : "downloads")}/sem." : "";
 
     public string StatALabel => HasSwarm ? "Seeders" : "Downloads/sem.";
     public string StatAValue => HasSwarm ? Format.Number(Model.Seeders ?? 0) : Format.Number(Model.Popularity ?? 0);
     public string StatBLabel => HasSwarm ? "Leechers" : "Fonte";
-    public string StatBValue => HasSwarm ? Format.Number(Model.Leechers ?? 0) : "HTTP + P2P";
+    public string StatBValue => HasSwarm ? Format.Number(Model.Leechers ?? 0) : "Web seed";
 
     /// <summary>0–100: proporção seeders/(seeders+leechers), suavizada pelo volume.</summary>
     public double HealthPercent

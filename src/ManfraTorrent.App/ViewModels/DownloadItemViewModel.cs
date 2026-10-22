@@ -42,7 +42,7 @@ public partial class DownloadItemViewModel : ViewModelBase
         var m = Manager;
         var state = m.State;
 
-        Name = string.IsNullOrEmpty(m.Name) ? TorrentEngineService.KeyOf(m) : m.Name;
+        Name = engine.DisplayNameOf(m);
 
         var hasMetadata = m.HasMetadata;
         var total = m.Torrent?.Size ?? m.MagnetLink.Size ?? 0;
