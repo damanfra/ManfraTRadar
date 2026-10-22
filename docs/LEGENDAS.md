@@ -1,4 +1,7 @@
-# Plano — busca de legendas PT-BR
+# Legendas PT-BR (sob demanda)
+
+> **Status (22/10/2026):** fases 1 e parte da 2 implementadas (OpenSubtitles + SubDL, um vídeo por vez),
+> ainda **não testadas** com chaves reais. Falta: seleção de vários episódios de uma vez e o teste no Plex.
 
 Objetivo: achar legenda em português do Brasil para vídeos **já baixados**, gastando o mínimo possível da cota
 diária dos serviços (o OpenSubtitles hoje libera poucos downloads por dia).
@@ -20,7 +23,7 @@ diária dos serviços (o OpenSubtitles hoje libera poucos downloads por dia).
 | OpenSubtitles.com (API REST) | sem login | 5 | precisa de chave de API (consumer) mesmo sem login |
 | OpenSubtitles.com | conta gratuita (login) | 20 | o login também é limitado: guardar e reaproveitar o token |
 | OpenSubtitles.com | VIP | bem maior | pago |
-| SubDL (API) | conta gratuita + chave de API | sem cota diária publicada | entrega `.zip` (às vezes com a temporada inteira) |
+| SubDL (API) | conta gratuita + chave de API | tem limite diário, valor não publicado (erro 429 `daily_limit`) | entrega `.zip` (às vezes com a temporada inteira) |
 
 O antigo opensubtitles.org (API XML-RPC) foi desativado; usar só a API REST do opensubtitles.com.
 
@@ -48,7 +51,8 @@ O antigo opensubtitles.org (API XML-RPC) foi desativado; usar só a API REST do 
 
 **Séries / temporada inteira:** a lista mostra cada episódio sem legenda, com caixa de seleção. Antes de confirmar,
 o app soma: "12 episódios = 12 downloads da cota (você tem 18 hoje)". Se o SubDL tiver o **pacote da temporada**
-(um `.zip` só), ele aparece primeiro, porque não gasta cota.
+(um `.zip` só), ele aparece primeiro, porque não gasta a cota do OpenSubtitles. *(Ainda não implementado:
+hoje é um vídeo por vez; o pacote do SubDL já é aberto e o episódio certo é extraído.)*
 
 ## Regras contra excesso de requisições
 
@@ -79,16 +83,23 @@ fica configurável: `.pt-BR.srt` / `.pt.srt` / `.por.srt`. Testar no Plex qual e
 - Aceitar português de Portugal se não houver PT-BR (padrão: não).
 - Mostrar traduções automáticas/IA (padrão: não).
 
-## Código (proposta)
+## Código
 
-- `Core/Subtitles/ISubtitleProvider` — `SearchAsync(VideoInfo, ct)` e `DownloadAsync(SubtitleCandidate, ct)`;
-  informa `ConsumesQuota`.
-- `Core/Subtitles/OpenSubtitlesProvider`, `SubDlProvider`.
-- `Core/Subtitles/VideoInspector` — lista vídeos do torrent, descarta amostras, acha `.srt` existentes, lê faixas
-  de legenda do MKV (leitor EBML mínimo, só o elemento `Tracks`) e calcula o hash do OpenSubtitles.
-- `Core/Subtitles/SubtitleCache` e `QuotaTracker` — persistência em JSON na pasta de dados.
-- `Core/Subtitles/SubtitleWriter` — detecta a codificação, converte para UTF-8 e grava com o nome configurado.
-- App: `SubtitleDialog` (as 4 etapas acima) aberto pelo menu do item em Downloads.
+- `Core/Subtitles/ISubtitleProvider` — `SearchAsync` (1 chamada) e `DownloadAsync`; `QuotaNote` diz se gasta cota.
+- `Core/Subtitles/OpenSubtitlesProvider` — busca com `moviehash`+`query`+`languages=pt-br` numa chamada (parâmetros em
+  ordem alfabética, minúsculos), `ai_translated=exclude`, ignora `machine_translated`; login guardado por 12 h
+  (`base_url` do login vira o host); `POST /download` atualiza `remaining`/`reset_time_utc`; 406 = cota esgotada.
+- `Core/Subtitles/SubDlProvider` — `languages=BR_PT` (+`PT` se aceitar Portugal), `type=movie|tv`, temporada/episódio;
+  baixa o `.zip` de `dl.subdl.com` e extrai o `.srt` do episódio certo.
+- `Core/Subtitles/VideoInspector` — vídeos do torrent (sem amostras < 100 MB), `.srt` existentes (ignora os de
+  outros episódios), faixas de legenda do MKV (`MkvReader`, leitor EBML mínimo até `Tracks`) e hash do OpenSubtitles.
+- `Core/Subtitles/ReleaseNameParser` — título, ano, SxxEyy e grupo a partir do nome do arquivo.
+- `Core/Subtitles/SubtitleRanker` — hash ★ > mesmo grupo > nome parecido > PT-BR > downloads.
+- `Core/Subtitles/SubtitleService` — provedores configurados, cache 7 dias e estado do OpenSubtitles em
+  `subtitles.json` (pasta de dados); só guarda o cache se ao menos um serviço respondeu.
+- `Core/Subtitles/SubtitleWriter` — BOM / UTF-8 estrito / Windows-1252 → grava UTF-8 com BOM.
+- App: `SubtitleWindow` + `SubtitleViewModel` (as 4 etapas), aberta por *Downloads → ⋯ → Buscar legenda PT-BR…*;
+  configurações em *Fontes e ajustes → Legendas PT-BR*.
 
 ## Fases
 

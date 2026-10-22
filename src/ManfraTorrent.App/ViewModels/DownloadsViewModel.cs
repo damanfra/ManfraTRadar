@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ManfraTorrent.App.Services;
 using ManfraTorrent.Core.Services;
+using ManfraTorrent.Core.Subtitles;
 using MonoTorrent.Client;
 
 namespace ManfraTorrent.App.ViewModels;
@@ -16,10 +17,19 @@ public partial class DownloadsViewModel : ViewModelBase
     DispatcherTimer? timer;
     int ticks;
 
-    public DownloadsViewModel(SettingsStore store, TorrentEngineService engine)
+    readonly SubtitleService subtitles;
+
+    public DownloadsViewModel(SettingsStore store, TorrentEngineService engine, SubtitleService subtitles)
     {
         this.store = store;
         this.engine = engine;
+        this.subtitles = subtitles;
+    }
+
+    async Task OpenSubtitlesAsync(DownloadItemViewModel item)
+    {
+        var files = item.Manager.Files.Select(f => f.FullPath).ToList();
+        await UiServices.ShowSubtitlesAsync(new SubtitleViewModel(subtitles, item.Name, files));
     }
 
     public ObservableCollection<DownloadItemViewModel> Visible { get; } = [];
@@ -77,7 +87,7 @@ public partial class DownloadsViewModel : ViewModelBase
         foreach (var m in managers)
         {
             if (items.All(i => i.Manager != m))
-                items.Add(new DownloadItemViewModel(m, engine, Refresh));
+                items.Add(new DownloadItemViewModel(m, engine, Refresh, OpenSubtitlesAsync));
         }
 
         long down = 0, up = 0;

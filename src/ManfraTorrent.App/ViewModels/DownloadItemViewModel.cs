@@ -11,12 +11,15 @@ public partial class DownloadItemViewModel : ViewModelBase
 {
     readonly TorrentEngineService engine;
     readonly Action onChanged;
+    readonly Func<DownloadItemViewModel, Task> openSubtitles;
 
-    public DownloadItemViewModel(TorrentManager manager, TorrentEngineService engine, Action onChanged)
+    public DownloadItemViewModel(TorrentManager manager, TorrentEngineService engine, Action onChanged,
+        Func<DownloadItemViewModel, Task> openSubtitles)
     {
         Manager = manager;
         this.engine = engine;
         this.onChanged = onChanged;
+        this.openSubtitles = openSubtitles;
         Update();
     }
 
@@ -142,6 +145,10 @@ public partial class DownloadItemViewModel : ViewModelBase
             onChanged();
         }
     }
+
+    /// <summary>Busca de legenda: só para downloads concluídos e sempre com confirmação na janela.</summary>
+    [RelayCommand]
+    private Task FindSubtitles() => IsComplete ? openSubtitles(this) : Task.CompletedTask;
 
     [RelayCommand]
     private void OpenFolder()

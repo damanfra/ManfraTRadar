@@ -1,0 +1,99 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ManfraTorrent.App.Views.SubtitleWindow"
+        Title="Legenda PT-BR"
+        Icon="/Assets/icon.ico"
+        Width="860" Height="680"
+        MinWidth="680" MinHeight="520"
+        WindowStartupLocation="CenterOwner"
+        Background="{StaticResource BgBrush}"
+        Foreground="{StaticResource TextBrush}">
+
+  <Grid RowDefinitions="Auto,Auto,Auto,*,Auto" Margin="24,20,24,18">
+
+    <!-- Cabeçalho -->
+    <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,14">
+      <TextBlock Classes="h1" Text="Buscar legenda PT-BR" />
+      <TextBlock Text="{Binding DownloadName}" Classes="muted" FontSize="13" TextTrimming="CharacterEllipsis" />
+    </StackPanel>
+
+    <!-- Etapa 1: vídeo e verificação local -->
+    <Border Grid.Row="1" Classes="card" Padding="14" Margin="0,0,0,12">
+      <StackPanel Spacing="8">
+        <TextBlock Classes="label" Text="1 · Verificação no disco (sem internet)" />
+        <ProgressBar Classes="bar" IsIndeterminate="True" IsVisible="{Binding IsInspecting}" />
+        <ComboBox ItemsSource="{Binding Videos}" SelectedItem="{Binding SelectedVideo}"
+                  HorizontalAlignment="Stretch" IsVisible="{Binding HasMultipleVideos}" />
+        <TextBlock Text="{Binding SelectedVideo.Name}" FontWeight="SemiBold" TextWrapping="Wrap"
+                   IsVisible="{Binding !HasMultipleVideos}" />
+        <TextBlock Text="{Binding LocalStatus}" Classes="muted" TextWrapping="Wrap" />
+      </StackPanel>
+    </Border>
+
+    <!-- Etapa 2: o que vai ser feito -->
+    <Border Grid.Row="2" Classes="card" Padding="14" Margin="0,0,0,12">
+      <StackPanel Spacing="10">
+        <TextBlock Classes="label" Text="2 · O que vai ser consultado" />
+        <TextBlock Text="{Binding SummaryText}" TextWrapping="Wrap" />
+        <TextBlock Text="{Binding QuotaText}" Classes="muted" TextWrapping="Wrap" />
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <Button Classes="primary" Content="{Binding SearchButtonText}" Command="{Binding SearchCommand}"
+                  IsVisible="{Binding CanSearch}" IsEnabled="{Binding !IsBusy}" />
+          <Button Classes="ghost" Content="Buscar de novo" Command="{Binding SearchAgainCommand}"
+                  IsVisible="{Binding CanSearchAgain}" IsEnabled="{Binding !IsBusy}"
+                  ToolTip.Tip="Ignora os resultados guardados e consulta os serviços outra vez (não gasta cota)" />
+          <ProgressBar Classes="bar" IsIndeterminate="True" Width="90" IsVisible="{Binding IsBusy}"
+                       VerticalAlignment="Center" />
+        </StackPanel>
+      </StackPanel>
+    </Border>
+
+    <!-- Etapa 3: resultados -->
+    <Grid Grid.Row="3" RowDefinitions="Auto,*">
+      <TextBlock Classes="label" Text="{Binding ResultsHeader, StringFormat='3 · Resultados — {0}'}"
+                 IsVisible="{Binding ResultsHeader, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+      <Border Grid.Row="1" BorderBrush="{StaticResource RowLineBrush}" BorderThickness="0,1,0,0"
+              IsVisible="{Binding HasResults}">
+        <ListBox Classes="rows" ItemsSource="{Binding Candidates}" SelectedItem="{Binding SelectedCandidate}">
+          <ListBox.ItemTemplate>
+            <DataTemplate>
+              <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="4">
+                  <StackPanel Orientation="Horizontal" Spacing="6">
+                    <Border Classes="state seeding" IsVisible="{Binding HashMatch}">
+                      <TextBlock Text="★ Sincronizada com seu arquivo" />
+                    </Border>
+                    <Border Classes="state downloading" IsVisible="{Binding SameGroup}">
+                      <TextBlock Text="Mesmo grupo do release" />
+                    </Border>
+                  </StackPanel>
+                  <TextBlock Text="{Binding Release}" FontSize="14" FontWeight="Medium" TextWrapping="Wrap" />
+                  <TextBlock Text="{Binding Details}" Classes="muted" TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+                <Button Grid.Column="1" Classes="link" Content="Ver página" VerticalAlignment="Center"
+                        Command="{Binding $parent[Window].DataContext.OpenPageCommand}" CommandParameter="{Binding}" />
+              </Grid>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </Border>
+    </Grid>
+
+    <!-- Etapa 4: baixar / status -->
+    <StackPanel Grid.Row="4" Spacing="8" Margin="0,12,0,0">
+      <TextBlock Text="{Binding StatusText}" TextWrapping="Wrap"
+                 IsVisible="{Binding StatusText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+      <TextBlock Text="{Binding SavedPath, StringFormat='Salva em: {0}'}" Foreground="{StaticResource SeedBrush}"
+                 TextWrapping="Wrap" IsVisible="{Binding HasSaved}" />
+      <Grid ColumnDefinitions="*,Auto,Auto">
+        <Button Classes="primary" HorizontalAlignment="Left" Content="{Binding DownloadButtonText}"
+                Command="{Binding DownloadCommand}" IsEnabled="{Binding CanDownload}"
+                IsVisible="{Binding HasResults}" />
+        <Button Grid.Column="1" Classes="ghost" Content="Abrir pasta" Margin="8,0,0,0"
+                Command="{Binding OpenFolderCommand}" />
+        <Button Grid.Column="2" Classes="ghost" Content="Fechar" Margin="8,0,0,0"
+                Command="{Binding CloseCommand}" />
+      </Grid>
+    </StackPanel>
+  </Grid>
+</Window>

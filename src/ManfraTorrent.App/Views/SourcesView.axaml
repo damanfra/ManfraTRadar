@@ -53,6 +53,35 @@
         </Border>
       </StackPanel>
 
+      <!-- Legendas -->
+      <StackPanel Spacing="8">
+        <StackPanel Spacing="2">
+          <TextBlock Classes="h2" Text="Legendas PT-BR" />
+          <TextBlock Classes="muted" TextWrapping="Wrap"
+                     Text="Usadas só quando você pede, num download concluído (menu ⋯ → Buscar legenda PT-BR). Chaves gratuitas: opensubtitles.com/consumers e subdl.com/panel/api. Sem login no OpenSubtitles a cota cai para 5 legendas por dia (com conta gratuita, 20)." />
+        </StackPanel>
+        <Border Classes="card">
+          <Grid ColumnDefinitions="*,16,*,16,*" RowDefinitions="Auto,Auto,12,Auto,Auto,12,Auto">
+            <TextBlock Grid.Row="0" Grid.Column="0" Classes="label" Text="OpenSubtitles — chave de API" />
+            <TextBox Grid.Row="1" Grid.Column="0" Text="{Binding OpenSubtitlesApiKey}" PasswordChar="•" />
+            <TextBlock Grid.Row="0" Grid.Column="2" Classes="label" Text="OpenSubtitles — usuário" />
+            <TextBox Grid.Row="1" Grid.Column="2" Text="{Binding OpenSubtitlesUsername}" />
+            <TextBlock Grid.Row="0" Grid.Column="4" Classes="label" Text="OpenSubtitles — senha" />
+            <TextBox Grid.Row="1" Grid.Column="4" Text="{Binding OpenSubtitlesPassword}" PasswordChar="•" />
+
+            <TextBlock Grid.Row="3" Grid.Column="0" Classes="label" Text="SubDL — chave de API" />
+            <TextBox Grid.Row="4" Grid.Column="0" Text="{Binding SubDlApiKey}" PasswordChar="•" />
+            <TextBlock Grid.Row="3" Grid.Column="2" Classes="label" Text="Terminação do arquivo (.srt)" />
+            <ComboBox Grid.Row="4" Grid.Column="2" ItemsSource="{Binding SubtitleSuffixes}"
+                      SelectedItem="{Binding SubtitleSuffix}" HorizontalAlignment="Stretch"
+                      ToolTip.Tip="Ex.: Filme.pt-BR.srt. Teste no Plex qual ele reconhece como Português (Brasil)." />
+
+            <CheckBox Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="5" IsChecked="{Binding SubtitleAcceptPtPt}"
+                      Content="Aceitar português de Portugal quando não houver PT-BR" />
+          </Grid>
+        </Border>
+      </StackPanel>
+
       <!-- Fontes -->
       <StackPanel Spacing="8">
         <Grid ColumnDefinitions="*,Auto">

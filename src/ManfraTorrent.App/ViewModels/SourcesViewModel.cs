@@ -98,6 +98,15 @@ public partial class SourcesViewModel : ViewModelBase
     [ObservableProperty] private bool hideLowQuality;
     [ObservableProperty] private bool hideBelow1080p;
 
+    // Legendas
+    public IReadOnlyList<string> SubtitleSuffixes { get; } = [".pt-BR", ".pt", ".por"];
+    [ObservableProperty] private string openSubtitlesApiKey = "";
+    [ObservableProperty] private string openSubtitlesUsername = "";
+    [ObservableProperty] private string openSubtitlesPassword = "";
+    [ObservableProperty] private string subDlApiKey = "";
+    [ObservableProperty] private string subtitleSuffix = ".pt-BR";
+    [ObservableProperty] private bool subtitleAcceptPtPt;
+
     void Load()
     {
         var s = store.Settings;
@@ -108,6 +117,12 @@ public partial class SourcesViewModel : ViewModelBase
         MinVideoSizeMB = s.MinVideoSizeMB.ToString();
         HideLowQuality = s.HideLowQuality;
         HideBelow1080p = s.HideBelow1080p;
+        OpenSubtitlesApiKey = s.OpenSubtitlesApiKey;
+        OpenSubtitlesUsername = s.OpenSubtitlesUsername;
+        OpenSubtitlesPassword = s.OpenSubtitlesPassword;
+        SubDlApiKey = s.SubDlApiKey;
+        SubtitleSuffix = SubtitleSuffixes.Contains(s.SubtitleSuffix) ? s.SubtitleSuffix : ".pt-BR";
+        SubtitleAcceptPtPt = s.SubtitleAcceptPtPt;
         Sources.Clear();
         foreach (var src in s.Sources) Sources.Add(new SourceItemViewModel(src));
     }
@@ -168,6 +183,12 @@ public partial class SourcesViewModel : ViewModelBase
         s.MinVideoSizeMB = minSize;
         s.HideLowQuality = HideLowQuality;
         s.HideBelow1080p = HideBelow1080p;
+        s.OpenSubtitlesApiKey = OpenSubtitlesApiKey.Trim();
+        s.OpenSubtitlesUsername = OpenSubtitlesUsername.Trim();
+        s.OpenSubtitlesPassword = OpenSubtitlesPassword;
+        s.SubDlApiKey = SubDlApiKey.Trim();
+        s.SubtitleSuffix = SubtitleSuffix;
+        s.SubtitleAcceptPtPt = SubtitleAcceptPtPt;
         s.Sources = Sources.Select(x => x.ToConfig()).ToList();
         store.Save();
 

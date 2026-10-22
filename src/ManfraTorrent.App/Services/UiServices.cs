@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
+using ManfraTorrent.App.ViewModels;
+using ManfraTorrent.App.Views;
 
 namespace ManfraTorrent.App.Services;
 
@@ -26,6 +28,16 @@ public static class UiServices
         {
             // sem programa associado: ignora
         }
+    }
+
+    /// <summary>Abre a janela de legendas como diálogo e já começa a verificação local.</summary>
+    public static async Task ShowSubtitlesAsync(SubtitleViewModel vm)
+    {
+        if (Window is null) return;
+        var dialog = new SubtitleWindow { DataContext = vm };
+        vm.CloseRequested += dialog.Close;
+        dialog.Opened += async (_, _) => await vm.InitializeAsync();
+        await dialog.ShowDialog(Window);
     }
 
     public static async Task<string?> PickTorrentFileAsync()

@@ -124,6 +124,9 @@
                     </StackPanel>
                     <Button.Flyout>
                       <MenuFlyout Placement="BottomEdgeAlignedRight">
+                        <MenuItem Header="Buscar legenda PT-BR…" Command="{Binding FindSubtitlesCommand}"
+                                  IsEnabled="{Binding IsComplete}" />
+                        <Separator />
                         <MenuItem Header="Copiar link magnet" Command="{Binding CopyMagnetCommand}" />
                         <MenuItem Header="Abrir pasta" Command="{Binding OpenFolderCommand}" />
                         <Separator />

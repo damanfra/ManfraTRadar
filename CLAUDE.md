@@ -69,6 +69,8 @@ Os nomes `ManfraTorrent.*` dos projetos/namespaces vêm de antes do nome final. 
 - Configuração nova do usuário: propriedade em `AppSettings` + campo em `SourcesViewModel` / `SourcesView`.
 - Fonte de busca nova: implemente `ITorrentProvider`, adicione um valor em `SourceType` e trate em `ProviderFactory`.
 - Filtros e agrupamento de resultados ficam só em `Core/Services/ResultFilter` (aplicado no `DiscoverViewModel`).
+- Legendas: tudo em `Core/Subtitles` (ver `docs/LEGENDAS.md`). Regra do Daniel: **nunca buscar automaticamente**;
+  só em download concluído, com confirmação, uma busca por serviço por arquivo e um download por escolha.
   Preferência do Daniel: só baixa filmes/séries FullHD ou melhor, com bitrate decente (daí o mínimo de 400 MB).
 
 ## Cuidados com o MonoTorrent
@@ -126,11 +128,13 @@ Os nomes `ManfraTorrent.*` dos projetos/namespaces vêm de antes do nome final. 
    - mostrar "atualizado há N min" ao lado do título, com botão de atualizar;
    - guardar o último resultado em disco (pasta de dados) para a lista aparecer na hora ao abrir o app,
      atualizando em segundo plano.
-4. **Legendas PT-BR sob demanda** — plano completo em `docs/LEGENDAS.md`. Resumo: só para downloads **concluídos**,
+4. **Legendas PT-BR sob demanda** — **implementado, falta testar com chaves reais** (detalhes e pendências em
+   `docs/LEGENDAS.md`). Resumo: só para downloads **concluídos**,
    **nunca automático** (o usuário clica no item e confirma); verificação local primeiro (`.srt` já existente, faixa PT
    embutida no MKV, hash do OpenSubtitles); uma busca por serviço por arquivo; o usuário escolhe e só então baixa 1
    legenda; cache local de buscas e controle da cota diária do OpenSubtitles (download conta, busca não); SubDL como
-   segunda fonte (sem cota publicada, pacotes de temporada); grava em UTF-8 com terminação configurável (Plex).
+   segunda fonte (limite diário não publicado, pacotes de temporada); grava em UTF-8 com terminação configurável (Plex).
+   Pendente: vários episódios de uma vez; definir a terminação padrão depois do teste no Plex.
 5. **Controle remoto pelo Android** (o Android só controla; quem baixa é sempre o desktop):
    - **API no desktop:** servidor HTTP embutido no app (ASP.NET Core / Kestrel) com endpoints para buscar no Descobrir
      (categoria + termo, usando as fontes do desktop, inclusive Jackett/Prowlarr), adicionar download (link + "em ordem"),

@@ -45,6 +45,24 @@ public sealed class AppSettings
     /// <summary>Esconde títulos marcados com resolução abaixo de 1080p (720p, 480p, DVDRip, XviD...).</summary>
     public bool HideBelow1080p { get; set; } = true;
 
+    // ---- Legendas (sob demanda) ----
+
+    /// <summary>Chave de API do opensubtitles.com (criada em opensubtitles.com/consumers).</summary>
+    public string OpenSubtitlesApiKey { get; set; } = "";
+
+    /// <summary>Login do opensubtitles.com. Sem login a cota diária é menor.</summary>
+    public string OpenSubtitlesUsername { get; set; } = "";
+    public string OpenSubtitlesPassword { get; set; } = "";
+
+    /// <summary>Chave de API do SubDL (subdl.com/panel/api).</summary>
+    public string SubDlApiKey { get; set; } = "";
+
+    /// <summary>Terminação do arquivo gravado: ".pt-BR", ".pt" ou ".por" (+ ".srt").</summary>
+    public string SubtitleSuffix { get; set; } = ".pt-BR";
+
+    /// <summary>Também aceitar português de Portugal quando não houver PT-BR.</summary>
+    public bool SubtitleAcceptPtPt { get; set; }
+
     /// <summary>
     /// Nome amigável de cada download (infohash hex → título da busca). O nome interno do torrent
     /// às vezes é só um identificador, como no Internet Archive ("good-trick-animated-short").

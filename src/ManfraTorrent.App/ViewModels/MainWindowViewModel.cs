@@ -1,6 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ManfraTorrent.App.Services;
 using ManfraTorrent.Core.Services;
+using ManfraTorrent.Core.Subtitles;
 
 namespace ManfraTorrent.App.ViewModels;
 
@@ -11,7 +13,7 @@ public partial class MainWindowViewModel : ViewModelBase
     public MainWindowViewModel(SettingsStore store, TorrentEngineService engine)
     {
         this.engine = engine;
-        Downloads = new DownloadsViewModel(store, engine);
+        Downloads = new DownloadsViewModel(store, engine, new SubtitleService(store, AppInfo.Version));
         Discover = new DiscoverViewModel(store, engine, Downloads);
         Sources = new SourcesViewModel(store, engine, Discover);
         currentPage = Discover;
