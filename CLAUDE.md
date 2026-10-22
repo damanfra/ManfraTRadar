@@ -135,6 +135,9 @@ Os nomes `ManfraTorrent.*` dos projetos/namespaces vêm de antes do nome final. 
    legenda; cache local de buscas e controle da cota diária do OpenSubtitles (download conta, busca não); SubDL como
    segunda fonte (limite diário não publicado, pacotes de temporada); grava em UTF-8 com terminação configurável (Plex).
    Pendente: vários episódios de uma vez; definir a terminação padrão depois do teste no Plex.
+   **Planejado (sem data):** a busca também como mini-app separado (`ManfraTorrent.SubtitleApp` + biblioteca
+   `ManfraTorrent.Subtitles`), para buscar vídeos que já saíram dos concluídos; o app principal continua chamando a
+   mesma janela. Passos em `docs/LEGENDAS.md`, seção "Futuro: busca de legendas como mini-app separado".
 5. **Controle remoto pelo Android** (o Android só controla; quem baixa é sempre o desktop):
    - **API no desktop:** servidor HTTP embutido no app (ASP.NET Core / Kestrel) com endpoints para buscar no Descobrir
      (categoria + termo, usando as fontes do desktop, inclusive Jackett/Prowlarr), adicionar download (link + "em ordem"),

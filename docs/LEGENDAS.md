@@ -117,3 +117,41 @@ fica configurável: `.pt-BR.srt` / `.pt.srt` / `.por.srt`. Testar no Plex qual e
 - Conta gratuita no **opensubtitles.com** e uma **chave de API** em *opensubtitles.com/consumers*.
 - Conta gratuita no **subdl.com** e a **chave de API** em *subdl.com/panel/api*.
 - Na fase 3, testar no Plex qual terminação ele reconhece como PT-BR.
+
+## Futuro: busca de legendas como mini-app separado (planejado, não iniciado)
+
+Motivo: poder buscar legendas de vídeos que já saíram da lista de concluídos do app. O app principal continua
+chamando a busca como hoje (mesma janela, mesmo comportamento).
+
+Estrutura proposta, na mesma solução:
+
+```
+ManfraTorrent.Core        (já existe: Subtitles, Settings, Format)
+ManfraTorrent.Subtitles   (novo: SubtitleViewModel + SubtitleWindow + estilos/tema que a janela usa)
+ManfraTorrent.App         (referencia Subtitles; abre a janela como hoje)
+ManfraTorrent.SubtitleApp (novo: executável pequeno que só abre a janela)
+```
+
+Alternativa descartada: repositório separado (duplicaria código ou exigiria pacotes NuGet; não vale para uso pessoal).
+
+Passos, nesta ordem:
+
+1. **Extrair a janela para a biblioteca** `ManfraTorrent.Subtitles`, sem mudar o comportamento. Mover
+   `ViewModels/SubtitleViewModel.cs` e `Views/SubtitleWindow.axaml(.cs)`. Conferir que o app principal continua igual.
+2. **Tokens e estilos reaproveitáveis**: hoje a janela usa os de `App.axaml` (`card`, `primary`, `ghost`, `label`, `muted`,
+   `mono`, `bar` e as cores `*Brush`). Mover para algo compartilhado pelos dois apps, para ficarem iguais.
+3. **Configurações compartilhadas** (recomendado): o mini-app lê e grava o mesmo `settings.json`
+   (`%APPDATA%\ManfraTRadar`; Linux `~/.config/ManfraTRadar`): chaves do OpenSubtitles e do SubDL, sufixo, "aceitar PT-PT".
+   Chaves configuradas uma vez só. Cuidar para os dois apps não gravarem o arquivo ao mesmo tempo (risco baixo).
+   Alternativa: arquivo próprio do mini-app (chaves configuradas duas vezes).
+4. **Cota do OpenSubtitles e cache de buscas na mesma pasta de dados**, compartilhados. Se cada app controlar a sua,
+   a cota diária (5 downloads no plano gratuito) estoura sem ninguém perceber.
+5. **Criar `ManfraTorrent.SubtitleApp`** (Avalonia, `AssemblyName` próprio), abrindo direto na etapa de escolher o vídeo.
+6. **Entrada de vídeo no mini-app**: botão "Escolher vídeo" (arquivo ou pasta) e arrastar e soltar. Hoje a janela já
+   recebe uma lista de vídeos; o mini-app passa o que o usuário escolher. Depois, se quiser, registrar "Abrir com" no Windows.
+7. Manter a regra do Daniel: nunca buscar automaticamente; uma busca por serviço por arquivo; um download por escolha.
+
+Observações:
+- Rodar e testar só via `dotnet run --project <projeto>`. O `publish` do mini-app (mais um `.exe` não assinado) fica
+  para quando o Daniel pedir (SentinelOne no PC dele).
+- Se mudar nomes de projeto/namespace, ver a nota em `CLAUDE.md` sobre renomear `ManfraTorrent.*` de uma vez.
