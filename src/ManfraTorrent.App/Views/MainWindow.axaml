@@ -1,7 +1,9 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:services="using:ManfraTorrent.App.Services"
         x:Class="ManfraTorrent.App.Views.MainWindow"
-        Title="ManfraTRadar"
+        Title="{x:Static services:AppInfo.WindowTitle}"
+        Icon="/Assets/icon.ico"
         Width="1280" Height="820"
         MinWidth="980" MinHeight="620"
         WindowStartupLocation="CenterScreen"
@@ -24,6 +26,13 @@
             <Ellipse Canvas.Left="7.5" Canvas.Top="13" Width="12" Height="12" Fill="{StaticResource AccentBrush}" Opacity="0.45" />
           </Canvas>
           <TextBlock Text="ManfraTRadar" FontSize="18" FontWeight="Bold" VerticalAlignment="Center" />
+        </StackPanel>
+
+        <!-- Marca d'água (fica abaixo do quadro de velocidades) -->
+        <StackPanel DockPanel.Dock="Bottom" Margin="0,10,0,0" Spacing="1" Opacity="0.6"
+                    HorizontalAlignment="Center">
+          <TextBlock Text="by Daniel Manfrini" Classes="muted" FontSize="10" HorizontalAlignment="Center" />
+          <TextBlock Text="Powered by Claude Code" Classes="muted" FontSize="10" HorizontalAlignment="Center" />
         </StackPanel>
 
         <!-- Rodapé: velocidade total e estado do motor -->

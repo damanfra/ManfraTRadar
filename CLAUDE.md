@@ -63,6 +63,8 @@ Os nomes `ManfraTorrent.*` dos projetos/namespaces vêm de antes do nome final. 
 - Cores e estilos ficam só em `App.axaml` (tokens `*Brush` e classes como `card`, `primary`, `ghost`, `round`, `chips`, `rows`, `bar`, `muted`, `mono`).
   Não espalhe cores literais novas pelas views; crie um token.
 - Ícones: `Path` com classe `icon` (traço, sem preenchimento), geometria no estilo 24×24.
+- Versão do app: `<Version>` em `Directory.Build.props`; aparece na barra de título (`Services/AppInfo`).
+  Ícone: `src/ManfraTorrent.App/Assets/icon.ico` (mesmo desenho dos três círculos da barra lateral; serve para janela e .exe).
 - Formatação de tamanho, velocidade e tempo: sempre por `Core/Services/Format` (cultura pt-BR).
 - Configuração nova do usuário: propriedade em `AppSettings` + campo em `SourcesViewModel` / `SourcesView`.
 - Fonte de busca nova: implemente `ITorrentProvider`, adicione um valor em `SourceType` e trate em `ProviderFactory`.
