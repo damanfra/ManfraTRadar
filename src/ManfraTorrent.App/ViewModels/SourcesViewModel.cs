@@ -57,6 +57,13 @@ public partial class SourceItemViewModel : ViewModelBase
         try
         {
             using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(20));
+            if (provider is TorznabProvider torznab)
+            {
+                var server = await torznab.TestConnectionAsync(cts.Token);
+                TestResult = $"OK · conectado ao {server}.";
+                return;
+            }
+
             var items = await provider.GetTrendingAsync(Category.All, cts.Token);
             TestResult = items.Count > 0
                 ? $"OK · {items.Count} itens. Ex.: {items[0].Title}"
@@ -99,12 +106,13 @@ public partial class SourcesViewModel : ViewModelBase
     [ObservableProperty] private bool hideBelow1080p;
 
     // Legendas
-    public IReadOnlyList<string> SubtitleSuffixes { get; } = [".pt-BR", ".pt", ".por"];
+    const string SameAsVideo = "Igual ao nome do vídeo";
+    public IReadOnlyList<string> SubtitleSuffixes { get; } = [SameAsVideo, ".pt-BR", ".pt", ".por"];
     [ObservableProperty] private string openSubtitlesApiKey = "";
     [ObservableProperty] private string openSubtitlesUsername = "";
     [ObservableProperty] private string openSubtitlesPassword = "";
     [ObservableProperty] private string subDlApiKey = "";
-    [ObservableProperty] private string subtitleSuffix = ".pt-BR";
+    [ObservableProperty] private string subtitleSuffix = SameAsVideo;
     [ObservableProperty] private bool subtitleAcceptPtPt;
 
     void Load()
@@ -121,7 +129,7 @@ public partial class SourcesViewModel : ViewModelBase
         OpenSubtitlesUsername = s.OpenSubtitlesUsername;
         OpenSubtitlesPassword = s.OpenSubtitlesPassword;
         SubDlApiKey = s.SubDlApiKey;
-        SubtitleSuffix = SubtitleSuffixes.Contains(s.SubtitleSuffix) ? s.SubtitleSuffix : ".pt-BR";
+        SubtitleSuffix = SubtitleSuffixes.Contains(s.SubtitleSuffix) ? s.SubtitleSuffix : SameAsVideo;
         SubtitleAcceptPtPt = s.SubtitleAcceptPtPt;
         Sources.Clear();
         foreach (var src in s.Sources) Sources.Add(new SourceItemViewModel(src));
@@ -187,7 +195,7 @@ public partial class SourcesViewModel : ViewModelBase
         s.OpenSubtitlesUsername = OpenSubtitlesUsername.Trim();
         s.OpenSubtitlesPassword = OpenSubtitlesPassword;
         s.SubDlApiKey = SubDlApiKey.Trim();
-        s.SubtitleSuffix = SubtitleSuffix;
+        s.SubtitleSuffix = SubtitleSuffix == SameAsVideo ? "" : SubtitleSuffix;
         s.SubtitleAcceptPtPt = SubtitleAcceptPtPt;
         s.Sources = Sources.Select(x => x.ToConfig()).ToList();
         store.Save();

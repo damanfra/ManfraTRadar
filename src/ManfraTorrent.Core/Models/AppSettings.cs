@@ -34,6 +34,34 @@ public sealed class AppSettings
     /// <summary>Infohashes (hex) que o usuário pausou; não são retomados ao abrir o app.</summary>
     public List<string> PausedTorrents { get; set; } = [];
 
+    /// <summary>
+    /// Trackers públicos somados a todo torrent (exceto privados). Lista "best" do ngosang/trackerslist
+    /// em 22/10/2026; troque à vontade no settings.json.
+    /// </summary>
+    public List<string> GlobalTrackers { get; set; } =
+    [
+        "udp://tracker.opentrackr.org:1337/announce",
+        "udp://open.stealth.si:80/announce",
+        "udp://tracker.torrent.eu.org:451/announce",
+        "udp://open.demonii.com:1337/announce",
+        "udp://tracker.skynetcloud.site:6969/announce",
+        "udp://tracker.qu.ax:6969/announce",
+        "udp://tracker.corpscorp.online:80/announce",
+        "udp://tracker.bittor.pw:1337/announce",
+        "udp://tracker.ducks.party:1984/announce",
+        "udp://tracker-udp.gbitt.info:80/announce",
+        "udp://tracker.nyaa.vc:6969/announce",
+        "udp://retracker01-msk-virt.corbina.net:80/announce",
+        "udp://tracker.gmi.gd:6969/announce",
+        "udp://explodie.org:6969/announce",
+        "http://tracker.dler.org:6969/announce",
+        "udp://tracker2.dler.org:80/announce",
+        "http://tracker.dler.com:6969/announce",
+        "http://tracker.renfei.net:8080/announce",
+        "udp://tracker.peerfect.org:6969/announce",
+        "udp://tracker.opentrackr.com:6969/announce",
+    ];
+
     // ---- Filtros do Descobrir ----
 
     /// <summary>Esconde filmes e séries menores que isto (MB). 0 = desligado.</summary>
@@ -57,8 +85,8 @@ public sealed class AppSettings
     /// <summary>Chave de API do SubDL (subdl.com/panel/api).</summary>
     public string SubDlApiKey { get; set; } = "";
 
-    /// <summary>Terminação do arquivo gravado: ".pt-BR", ".pt" ou ".por" (+ ".srt").</summary>
-    public string SubtitleSuffix { get; set; } = ".pt-BR";
+    /// <summary>Terminação do arquivo gravado: "" (mesmo nome do vídeo), ".pt-BR", ".pt" ou ".por" (+ ".srt").</summary>
+    public string SubtitleSuffix { get; set; } = "";
 
     /// <summary>Também aceitar português de Portugal quando não houver PT-BR.</summary>
     public bool SubtitleAcceptPtPt { get; set; }

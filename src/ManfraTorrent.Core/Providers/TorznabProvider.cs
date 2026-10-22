@@ -36,6 +36,56 @@ public sealed class TorznabProvider(string name, string apiUrl, string apiKey) :
     public Task<IReadOnlyList<SearchResult>> SearchAsync(string query, Category category, CancellationToken ct) =>
         QueryAsync(query, category, ct);
 
+    const string AllSegment = "/indexers/all/";
+
+    /// <summary>
+    /// Jackett: o endpoint "all" só responde quando o indexador mais lento termina.
+    /// Aqui separamos em um provedor por indexador configurado, para os resultados chegarem aos poucos.
+    /// Outros endpoints (ou qualquer falha ao listar) devolvem o próprio provedor.
+    /// </summary>
+    public async Task<IReadOnlyList<ITorrentProvider>> SplitByIndexerAsync(CancellationToken ct)
+    {
+        var at = apiUrl.IndexOf(AllSegment, StringComparison.OrdinalIgnoreCase);
+        if (at < 0) return [this];
+
+        try
+        {
+            var sep = apiUrl.Contains('?') ? "&" : "?";
+            var xml = await Http.Api.GetStringAsync(
+                $"{apiUrl}{sep}t=indexers&configured=true&apikey={Uri.EscapeDataString(apiKey)}", ct);
+            var doc = XDocument.Parse(xml);
+
+            var list = new List<ITorrentProvider>();
+            foreach (var ix in doc.Root?.Elements("indexer") ?? [])
+            {
+                var id = (string?) ix.Attribute("id");
+                if (string.IsNullOrEmpty(id)) continue;
+                var title = (string?) ix.Element("title") ?? id;
+                var url = apiUrl[..at] + $"/indexers/{Uri.EscapeDataString(id)}/" + apiUrl[(at + AllSegment.Length)..];
+                list.Add(new TorznabProvider(title, url, apiKey));
+            }
+            return list.Count > 0 ? list : [this];
+        }
+        catch (Exception) when (!ct.IsCancellationRequested)
+        {
+            return [this];
+        }
+    }
+
+    /// <summary>Teste leve (t=caps): valida URL e chave sem rodar uma busca em todos os indexadores.</summary>
+    public async Task<string> TestConnectionAsync(CancellationToken ct)
+    {
+        var sep = apiUrl.Contains('?') ? "&" : "?";
+        var xml = await Http.Api.GetStringAsync($"{apiUrl}{sep}t=caps&apikey={Uri.EscapeDataString(apiKey)}", ct);
+        var doc = XDocument.Parse(xml);
+
+        if (doc.Root?.Name.LocalName == "error")
+            throw new InvalidOperationException(
+                $"{Name}: {(string?) doc.Root.Attribute("description") ?? "erro desconhecido"}");
+
+        return (string?) doc.Root?.Element("server")?.Attribute("title") ?? "Torznab";
+    }
+
     async Task<IReadOnlyList<SearchResult>> QueryAsync(string query, Category category, CancellationToken ct)
     {
         var sep = apiUrl.Contains('?') ? "&" : "?";

@@ -74,7 +74,7 @@
             <TextBlock Grid.Row="3" Grid.Column="2" Classes="label" Text="Terminação do arquivo (.srt)" />
             <ComboBox Grid.Row="4" Grid.Column="2" ItemsSource="{Binding SubtitleSuffixes}"
                       SelectedItem="{Binding SubtitleSuffix}" HorizontalAlignment="Stretch"
-                      ToolTip.Tip="Ex.: Filme.pt-BR.srt. Teste no Plex qual ele reconhece como Português (Brasil)." />
+                      ToolTip.Tip="Padrão: mesmo nome do vídeo (Filme.srt). Com terminação: Filme.pt-BR.srt." />
 
             <CheckBox Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="5" IsChecked="{Binding SubtitleAcceptPtPt}"
                       Content="Aceitar português de Portugal quando não houver PT-BR" />

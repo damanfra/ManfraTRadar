@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Threading.Channels;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ManfraTorrent.App.Services;
@@ -96,16 +97,39 @@ public partial class DiscoverViewModel : ViewModelBase
         IsBusy = true;
         StatusText = $"Consultando {providers.Count} fonte(s)…";
 
-        var tasks = providers.Select(p => QueryProviderAsync(p, query, category, ct)).ToList();
-        var outcomes = await Task.WhenAll(tasks);
-        if (ct.IsCancellationRequested) return;
+        // Cada fonte (e, no Jackett, cada indexador) entrega o resultado assim que terminar.
+        var channel = Channel.CreateUnbounded<Outcome>();
+        var total = 0;
+        async Task RunAsync(ITorrentProvider provider)
+        {
+            var parts = provider is TorznabProvider t ? await t.SplitByIndexerAsync(ct) : [provider];
+            Interlocked.Add(ref total, parts.Count);
+            await Task.WhenAll(parts.Select(async p =>
+                await channel.Writer.WriteAsync(await QueryProviderAsync(p, query, category, ct), CancellationToken.None)));
+        }
+        _ = Task.WhenAll(providers.Select(RunAsync)).ContinueWith(
+            t => channel.Writer.TryComplete(t.Exception), TaskScheduler.Default);
 
-        var filtered = ResultFilter.Apply(outcomes.SelectMany(o => o.Items), store.Settings);
-        raw = filtered.Items;
-        ApplySort();
+        var outcomes = new List<Outcome>();
+        var filtered = new FilterOutcome([], 0, 0);
+        try
+        {
+            await foreach (var outcome in channel.Reader.ReadAllAsync(ct))
+            {
+                outcomes.Add(outcome);
+                filtered = ResultFilter.Apply(outcomes.SelectMany(o => o.Items), store.Settings);
+                raw = filtered.Items;
+                ApplySort();
+                StatusText = $"Consultando… {outcomes.Count}/{Volatile.Read(ref total)} fonte(s) · {raw.Count} resultado(s)";
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            return; // uma nova busca assumiu
+        }
 
         var errors = outcomes.Where(o => o.Error is not null).Select(o => $"{o.Name}: {o.Error}").ToList();
-        StatusText = $"{raw.Count} resultado(s) de {providers.Count - errors.Count}/{providers.Count} fonte(s)"
+        StatusText = $"{raw.Count} resultado(s) de {outcomes.Count - errors.Count}/{outcomes.Count} fonte(s)"
                      + (filtered.Duplicates > 0 ? $" · {filtered.Duplicates} repetido(s) agrupado(s)" : "")
                      + (filtered.Hidden > 0 ? $" · {filtered.Hidden} oculto(s) pelos filtros" : "")
                      + (errors.Count > 0 ? " — falhou: " + string.Join(" | ", errors) : "");

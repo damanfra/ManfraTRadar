@@ -76,9 +76,8 @@ hoje é um vídeo por vez; o pacote do SubDL já é aberto e o episódio certo �
 
 ## Nome do arquivo de legenda
 
-Padrão `<nome do vídeo>.pt-BR.srt` (VLC, MPC e Jellyfin reconhecem). Como o Daniel usa **Plex**, a terminação
-fica configurável: `.pt-BR.srt` / `.pt.srt` / `.por.srt`. Testar no Plex qual ele identifica como
-"Português (Brasil)" e deixar essa como padrão.
+Padrão: **igual ao nome do vídeo** (`Filme.mkv` → `Filme.srt`), por pedido do Daniel (testado em 22/10/2026).
+A terminação continua configurável: `.pt-BR.srt` / `.pt.srt` / `.por.srt` (útil para o Plex identificar o idioma).
 
 ## Configurações (seção "Legendas")
 

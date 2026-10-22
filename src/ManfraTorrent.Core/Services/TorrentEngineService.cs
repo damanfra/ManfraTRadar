@@ -47,6 +47,7 @@ public sealed class TorrentEngineService
         var paused = store.Settings.PausedTorrents.ToHashSet(StringComparer.OrdinalIgnoreCase);
         foreach (var manager in Engine.Torrents.ToList())
         {
+            await AddGlobalTrackersAsync(manager);
             if (!paused.Contains(KeyOf(manager)))
                 await manager.StartAsync();
         }
@@ -90,6 +91,30 @@ public sealed class TorrentEngineService
             catch (InvalidOperationException)
             {
                 return []; // lista alterada durante a cópia; o próximo tick resolve
+            }
+        }
+    }
+
+    /// <summary>Soma a lista global de trackers ao torrent, sem repetir os que ele já tem. Ignora torrents privados.</summary>
+    async Task AddGlobalTrackersAsync(TorrentManager manager)
+    {
+        if (manager.Torrent?.IsPrivate == true) return;
+
+        var known = manager.TrackerManager.Tiers
+            .SelectMany(t => t.Trackers)
+            .Select(t => t.Uri)
+            .ToHashSet();
+
+        foreach (var text in store.Settings.GlobalTrackers)
+        {
+            if (!Uri.TryCreate(text.Trim(), UriKind.Absolute, out var uri) || known.Contains(uri)) continue;
+            try
+            {
+                await manager.TrackerManager.AddTrackerAsync(uri);
+            }
+            catch
+            {
+                // Tracker inválido ou não suportado: segue com os outros.
             }
         }
     }
@@ -170,6 +195,7 @@ public sealed class TorrentEngineService
                     : await Engine.AddAsync(magnet!, saveDirectory, settings);
 
             RememberDisplayName(manager, displayName);
+            await AddGlobalTrackersAsync(manager);
             await manager.StartAsync();
             await SaveStateCoreAsync();
             return manager;

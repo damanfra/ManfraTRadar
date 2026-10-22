@@ -9,8 +9,9 @@ public static class SubtitleWriter
 
     public static string TargetPath(string videoPath, string suffix)
     {
-        suffix = string.IsNullOrWhiteSpace(suffix) ? ".pt-BR" : suffix.Trim();
-        if (!suffix.StartsWith('.')) suffix = "." + suffix;
+        // Vazio = mesmo nome do vídeo (Filme.mkv → Filme.srt).
+        suffix = (suffix ?? "").Trim();
+        if (suffix.Length > 0 && !suffix.StartsWith('.')) suffix = "." + suffix;
         var dir = Path.GetDirectoryName(videoPath) ?? "";
         return Path.Combine(dir, Path.GetFileNameWithoutExtension(videoPath) + suffix + ".srt");
     }
