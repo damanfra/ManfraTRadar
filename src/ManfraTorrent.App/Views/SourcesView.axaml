@@ -31,6 +31,28 @@
         </Border>
       </StackPanel>
 
+      <!-- Filtros do Descobrir -->
+      <StackPanel Spacing="8">
+        <StackPanel Spacing="2">
+          <TextBlock Classes="h2" Text="Filtros do Descobrir" />
+          <TextBlock Classes="muted" TextWrapping="Wrap"
+                     Text="Valem para &quot;Em alta&quot; e para a busca. Resultados repetidos (o mesmo torrent em sites diferentes) são sempre agrupados." />
+        </StackPanel>
+        <Border Classes="card">
+          <Grid ColumnDefinitions="200,24,*" RowDefinitions="Auto,Auto">
+            <TextBlock Grid.Row="0" Grid.Column="0" Classes="label" Text="Tamanho mínimo de filmes e séries (MB)" TextWrapping="Wrap" />
+            <TextBox Grid.Row="1" Grid.Column="0" Text="{Binding MinVideoSizeMB}" Watermark="0 = sem filtro"
+                     VerticalAlignment="Top" />
+            <StackPanel Grid.Row="0" Grid.RowSpan="2" Grid.Column="2" Spacing="6" VerticalAlignment="Center">
+              <CheckBox IsChecked="{Binding HideLowQuality}"
+                        Content="Esconder gravações de cinema (CAM, TS, TC, DVDScr, HDCAM…)" />
+              <CheckBox IsChecked="{Binding HideBelow1080p}"
+                        Content="Esconder resolução abaixo de 1080p (720p, 480p, DVDRip, XviD…)" />
+            </StackPanel>
+          </Grid>
+        </Border>
+      </StackPanel>
+
       <!-- Fontes -->
       <StackPanel Spacing="8">
         <Grid ColumnDefinitions="*,Auto">

@@ -66,6 +66,8 @@ Os nomes `ManfraTorrent.*` dos projetos/namespaces vêm de antes do nome final. 
 - Formatação de tamanho, velocidade e tempo: sempre por `Core/Services/Format` (cultura pt-BR).
 - Configuração nova do usuário: propriedade em `AppSettings` + campo em `SourcesViewModel` / `SourcesView`.
 - Fonte de busca nova: implemente `ITorrentProvider`, adicione um valor em `SourceType` e trate em `ProviderFactory`.
+- Filtros e agrupamento de resultados ficam só em `Core/Services/ResultFilter` (aplicado no `DiscoverViewModel`).
+  Preferência do Daniel: só baixa filmes/séries FullHD ou melhor, com bitrate decente (daí o mínimo de 400 MB).
 
 ## Cuidados com o MonoTorrent
 

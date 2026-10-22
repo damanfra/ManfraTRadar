@@ -94,6 +94,9 @@ public partial class SourcesViewModel : ViewModelBase
     [ObservableProperty] private string maxDownloadKBps = "";
     [ObservableProperty] private string maxUploadKBps = "";
     [ObservableProperty] private string statusText = "";
+    [ObservableProperty] private string minVideoSizeMB = "";
+    [ObservableProperty] private bool hideLowQuality;
+    [ObservableProperty] private bool hideBelow1080p;
 
     void Load()
     {
@@ -102,6 +105,9 @@ public partial class SourcesViewModel : ViewModelBase
         ListenPort = s.ListenPort.ToString();
         MaxDownloadKBps = s.MaxDownloadKBps.ToString();
         MaxUploadKBps = s.MaxUploadKBps.ToString();
+        MinVideoSizeMB = s.MinVideoSizeMB.ToString();
+        HideLowQuality = s.HideLowQuality;
+        HideBelow1080p = s.HideBelow1080p;
         Sources.Clear();
         foreach (var src in s.Sources) Sources.Add(new SourceItemViewModel(src));
     }
@@ -143,6 +149,11 @@ public partial class SourcesViewModel : ViewModelBase
             StatusText = "Limites de velocidade precisam ser números (0 = sem limite).";
             return;
         }
+        if (!int.TryParse(MinVideoSizeMB, out var minSize) || minSize < 0)
+        {
+            StatusText = "Tamanho mínimo precisa ser um número em MB (0 = sem filtro).";
+            return;
+        }
         if (string.IsNullOrWhiteSpace(DownloadFolder))
         {
             StatusText = "Escolha uma pasta de destino.";
@@ -154,6 +165,9 @@ public partial class SourcesViewModel : ViewModelBase
         s.ListenPort = port;
         s.MaxDownloadKBps = down;
         s.MaxUploadKBps = up;
+        s.MinVideoSizeMB = minSize;
+        s.HideLowQuality = HideLowQuality;
+        s.HideBelow1080p = HideBelow1080p;
         s.Sources = Sources.Select(x => x.ToConfig()).ToList();
         store.Save();
 

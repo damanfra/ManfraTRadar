@@ -46,6 +46,15 @@ Os nomes `ManfraTorrent.*` dos projetos são anteriores ao nome do app; o execut
 5. Ao buscar com termo, a ordenação muda para **Relevância**: mantém a ordem que cada fonte devolveu e intercala
    as fontes (1º de cada, depois 2º de cada...). Ao voltar para "Em alta", volta para "Mais populares".
 
+Antes de mostrar, tudo passa pelo `ResultFilter` (Core/Services):
+- **agrupa repetidos**: primeiro pelo infohash (mesmo torrent em sites diferentes), depois por título normalizado
+  + tamanho em MB (mesmo lançamento publicado várias vezes). Fica o de mais seeders, na posição do primeiro;
+- **esconde** (opções em *Fontes e ajustes*, valores em `AppSettings`): filmes/séries menores que `MinVideoSizeMB`
+  (padrão 400; tamanho desconhecido passa), gravações de cinema (`HideLowQuality`: CAM, TS, TC, DVDScr, HDCAM...)
+  e resoluções abaixo de 1080p (`HideBelow1080p`: 720p, 480p, DVDRip, XviD... — só quando o título traz a marca;
+  título sem resolução passa). Os termos são comparados como palavras inteiras do título.
+- A linha de status mostra quantos foram agrupados e quantos foram ocultos.
+
 Busca no Internet Archive: primeiro exige **todas** as palavras no título (`title:(a AND b AND c)`), sem `sort`
 (relevância do próprio Archive). Se não achar nada, tenta todas as palavras em qualquer campo. O Archive só tem
 domínio público e acervo; lançamentos comerciais só aparecem pelas fontes Torznab.

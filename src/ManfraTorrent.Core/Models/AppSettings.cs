@@ -34,6 +34,17 @@ public sealed class AppSettings
     /// <summary>Infohashes (hex) que o usuário pausou; não são retomados ao abrir o app.</summary>
     public List<string> PausedTorrents { get; set; } = [];
 
+    // ---- Filtros do Descobrir ----
+
+    /// <summary>Esconde filmes e séries menores que isto (MB). 0 = desligado.</summary>
+    public int MinVideoSizeMB { get; set; } = 400;
+
+    /// <summary>Esconde gravações de cinema e cópias de baixa qualidade (CAM, TS, TC, DVDScr...).</summary>
+    public bool HideLowQuality { get; set; } = true;
+
+    /// <summary>Esconde títulos marcados com resolução abaixo de 1080p (720p, 480p, DVDRip, XviD...).</summary>
+    public bool HideBelow1080p { get; set; } = true;
+
     /// <summary>
     /// Nome amigável de cada download (infohash hex → título da busca). O nome interno do torrent
     /// às vezes é só um identificador, como no Internet Archive ("good-trick-animated-short").

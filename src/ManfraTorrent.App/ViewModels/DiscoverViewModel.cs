@@ -100,11 +100,14 @@ public partial class DiscoverViewModel : ViewModelBase
         var outcomes = await Task.WhenAll(tasks);
         if (ct.IsCancellationRequested) return;
 
-        raw = outcomes.SelectMany(o => o.Items).ToList();
+        var filtered = ResultFilter.Apply(outcomes.SelectMany(o => o.Items), store.Settings);
+        raw = filtered.Items;
         ApplySort();
 
         var errors = outcomes.Where(o => o.Error is not null).Select(o => $"{o.Name}: {o.Error}").ToList();
         StatusText = $"{raw.Count} resultado(s) de {providers.Count - errors.Count}/{providers.Count} fonte(s)"
+                     + (filtered.Duplicates > 0 ? $" · {filtered.Duplicates} repetido(s) agrupado(s)" : "")
+                     + (filtered.Hidden > 0 ? $" · {filtered.Hidden} oculto(s) pelos filtros" : "")
                      + (errors.Count > 0 ? " — falhou: " + string.Join(" | ", errors) : "");
         IsBusy = false;
     }
