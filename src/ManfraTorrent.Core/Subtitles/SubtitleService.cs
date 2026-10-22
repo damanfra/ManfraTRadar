@@ -96,8 +96,8 @@ public sealed class SubtitleService
         }
 
         var login = string.IsNullOrWhiteSpace(store.Settings.OpenSubtitlesUsername)
-            ? "sem login: 5 por dia"
-            : "conta gratuita: 20 por dia";
+            ? "sem login, plano gratuito: 5 por dia"
+            : "cota da sua conta; plano gratuito: 5 por dia";
         return State.OsRemaining is { } r && State.OsResetUtc is { } next
             ? $"Cota OpenSubtitles hoje: {r} restante(s), reinicia às {next.ToLocalTime():HH:mm} ({login})"
             : $"Cota OpenSubtitles: {login} (o restante aparece depois do primeiro download)";

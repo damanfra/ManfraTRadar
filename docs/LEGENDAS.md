@@ -20,8 +20,8 @@ diária dos serviços (o OpenSubtitles hoje libera poucos downloads por dia).
 
 | Serviço | Conta | Download de legendas por dia | Observações |
 |---|---|---|---|
-| OpenSubtitles.com (API REST) | sem login | 5 | precisa de chave de API (consumer) mesmo sem login |
-| OpenSubtitles.com | conta gratuita (login) | 20 | o login também é limitado: guardar e reaproveitar o token |
+| OpenSubtitles.com (API REST) | consumer gratuito (chave de API) | **5** (confirmado na página de consumers, 22/10/2026) | 5 requisições/s por IP; `dev_mode` libera 100/dia só para testes |
+| OpenSubtitles.com | login de conta gratuita | cota da conta (a Central de Ajuda fala em 20; na prática pode ser 5) | o app mostra o `remaining` real depois do 1º download; o login também é limitado: token reaproveitado por 12 h |
 | OpenSubtitles.com | VIP | bem maior | pago |
 | SubDL (API) | conta gratuita + chave de API | tem limite diário, valor não publicado (erro 429 `daily_limit`) | entrega `.zip` (às vezes com a temporada inteira) |
 
@@ -77,7 +77,7 @@ fica configurável: `.pt-BR.srt` / `.pt.srt` / `.por.srt`. Testar no Plex qual e
 
 ## Configurações (seção "Legendas")
 
-- OpenSubtitles: chave de API (consumer), usuário e senha (opcionais; sem login a cota cai para 5/dia).
+- OpenSubtitles: chave de API (consumer), usuário e senha (opcionais; a cota real aparece depois do 1º download).
 - SubDL: chave de API.
 - Terminação do arquivo (`.pt-BR` / `.pt` / `.por`).
 - Aceitar português de Portugal se não houver PT-BR (padrão: não).
