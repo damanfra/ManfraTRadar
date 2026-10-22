@@ -87,7 +87,25 @@ Os nomes `ManfraTorrent.*` dos projetos/namespaces vêm de antes do nome final. 
 
 ## Próximos passos
 
-1. **Tela de Configurações** (separada de "Fontes"), com:
+1. **PRÓXIMA TAREFA — Release automática + auto-atualização** (mesmo padrão de release dos outros apps do Daniel,
+   ex.: Android-Streaming-Hub e Android-media-downloader):
+   - **Workflow** `.github/workflows/release.yml`: dispara em push na `main` (com `paths-ignore` para `**.md` e `docs/**`)
+     e por `workflow_dispatch`; `permissions: contents: write`; roda em `windows-latest` (o ícone do .exe só é
+     embutido quando o build roda no Windows); `actions/setup-dotnet` 10.x; versão `0.1.${{ github.run_number }}`
+     passada com `-p:Version=...`; publica `win-x64` e `linux-x64` self-contained single-file; empacota
+     `ManfraTRadar-v0.1.N-win-x64.zip` e `ManfraTRadar-v0.1.N-linux-x64.tar.gz`; publica com
+     `softprops/action-gh-release@v2` (tag `v0.1.N`, `make_latest: true`, corpo com o commit).
+   - **Verificação no app** (`Core/Services/UpdateService`): consulta
+     `https://api.github.com/repos/damanfra/ManfraTRadar/releases/latest` (repo público, sem token) ao abrir e a cada
+     6 h; compara com `AppInfo.Version`; escolhe o asset do sistema atual. Build local (`dotnet run`, versão do
+     `Directory.Build.props`) não oferece atualização.
+   - **Aviso**: faixa discreta na barra lateral "Nova versão v0.1.N — Atualizar" + opção em Configurações
+     ("Verificar atualizações automaticamente" e "Verificar agora").
+   - **Aplicar (portátil, sem instalador)**: baixar o pacote para a pasta temporária, extrair; no Windows renomear o
+     `ManfraTRadar.exe` em execução para `ManfraTRadar.old.exe` (o Windows permite renomear exe em uso), colocar o novo,
+     salvar o estado do motor (`ShutdownAsync`), abrir o novo e sair; ao iniciar, apagar `*.old.exe`. No Linux,
+     substituir o arquivo e reiniciar. Alternativa avaliada: Velopack (instalador + atalhos + delta), se um dia quiser instalador.
+2. **Tela de Configurações** (separada de "Fontes"), com:
    - velocidade máxima de upload e download (hoje fica em *Fontes e ajustes*; mover para cá);
    - ação ao terminar os downloads: nada, fechar o app ou desligar o PC
      (Windows: `shutdown /s /t 60`; Linux: `systemctl poweroff`; avisar com contagem regressiva e opção de cancelar);
@@ -100,7 +118,7 @@ Os nomes `ManfraTorrent.*` dos projetos/namespaces vêm de antes do nome final. 
    - bloquear conteúdo adulto (sim/não): descartar resultados das categorias Torznab 6000–6999 (XXX) e,
      como reforço, filtrar por palavras-chave no título. Vale para Descobrir e para a busca;
    - intervalo de atualização do Descobrir: nunca / 15 / 30 / 60 min (padrão 30).
-2. **Atualização automática do Descobrir** (hoje só atualiza ao abrir o app, trocar categoria, buscar ou salvar fontes):
+3. **Atualização automática do Descobrir** (hoje só atualiza ao abrir o app, trocar categoria, buscar ou salvar fontes):
    - timer conforme o intervalo configurado; pular enquanto a janela estiver minimizada e atualizar ao voltar,
      se o intervalo já tiver passado;
    - não atrapalhar quem está olhando: manter o item selecionado e a posição da lista. Durante uma busca,
@@ -108,7 +126,7 @@ Os nomes `ManfraTorrent.*` dos projetos/namespaces vêm de antes do nome final. 
    - mostrar "atualizado há N min" ao lado do título, com botão de atualizar;
    - guardar o último resultado em disco (pasta de dados) para a lista aparecer na hora ao abrir o app,
      atualizando em segundo plano.
-3. **Legendas PT-BR automáticas** ao terminar o download de um vídeo (e opcionalmente ao iniciar, no modo "em ordem"):
+4. **Legendas PT-BR automáticas** ao terminar o download de um vídeo (e opcionalmente ao iniciar, no modo "em ordem"):
    - provedores plugáveis (`ISubtitleProvider`), como os de busca: OpenSubtitles (API REST `api.opensubtitles.com`,
      chave de API + login do usuário; o plano gratuito tem cota diária baixa) e SubDL (chave de API);
    - busca primeiro pelo hash do arquivo (hash do OpenSubtitles: tamanho + primeiros e últimos 64 KB), que garante a
@@ -116,7 +134,7 @@ Os nomes `ManfraTorrent.*` dos projetos/namespaces vêm de antes do nome final. 
    - salvar ao lado do vídeo como `<nome do vídeo>.pt-BR.srt`, convertendo para UTF-8 (muitas legendas PT-BR vêm em Windows-1252);
    - configurações: ligar/desligar, idiomas em ordem de preferência (padrão `pt-BR`, depois `pt`), chaves dos provedores;
    - na tela de Downloads: indicador "legenda encontrada / não encontrada" e ação "buscar legenda de novo".
-4. **Controle remoto pelo Android** (o Android só controla; quem baixa é sempre o desktop):
+5. **Controle remoto pelo Android** (o Android só controla; quem baixa é sempre o desktop):
    - **API no desktop:** servidor HTTP embutido no app (ASP.NET Core / Kestrel) com endpoints para buscar no Descobrir
      (categoria + termo, usando as fontes do desktop, inclusive Jackett/Prowlarr), adicionar download (link + "em ordem"),
      listar downloads com progresso e velocidades, e pausar, retomar ou remover. Liga/desliga e porta em Configurações;
@@ -128,8 +146,8 @@ Os nomes `ManfraTorrent.*` dos projetos/namespaces vêm de antes do nome final. 
    - **Refatoração:** extrair uma interface (ex.: `ITorrentBackend`) para os ViewModels funcionarem com o motor local
      (desktop) ou com o desktop remoto (Android), reaproveitando ViewModels e estilos;
    - visual mobile: seguir o protótipo em `docs/prototipo-android/`.
-5. Escolher arquivos antes de baixar (`SetFilePriorityAsync(file, Priority.DoNotDownload)`).
-6. Registrar o app como handler de `magnet:` (Windows: registro em `HKCU\Software\Classes\magnet`; Linux: `.desktop` com `MimeType=x-scheme-handler/magnet`) e aceitar o link via `args` em `Program.cs`.
-7. Ícone na bandeja / iniciar minimizado.
-8. Amarrar o tráfego a uma interface (VPN).
-9. (Por último, se fizer falta) Player embutido (LibVLCSharp) aproveitando o modo streaming.
+6. Escolher arquivos antes de baixar (`SetFilePriorityAsync(file, Priority.DoNotDownload)`).
+7. Registrar o app como handler de `magnet:` (Windows: registro em `HKCU\Software\Classes\magnet`; Linux: `.desktop` com `MimeType=x-scheme-handler/magnet`) e aceitar o link via `args` em `Program.cs`.
+8. Ícone na bandeja / iniciar minimizado.
+9. Amarrar o tráfego a uma interface (VPN).
+10. (Por último, se fizer falta) Player embutido (LibVLCSharp) aproveitando o modo streaming.
